@@ -6,7 +6,6 @@ function Body(mass, position, velocity, maxSpeed, damping) {
 	this.setMass(mass);
 	this.position = position;
 	this.velocity = velocity;
-	this.acceleration = new Vector(0, 0);
 	this.force = new Vector(0, 0);
 	this.maxSpeed = maxSpeed || -1;
 	this.damping = damping || 0;

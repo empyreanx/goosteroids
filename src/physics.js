@@ -2,8 +2,10 @@
 
 var clamp = require("./utilities.js").clamp;
 
-function Physics(width, height) {
+function Physics(width, height, dt) {
 	this.setBounds(width, height);
+	this.dt = dt;
+	this.dt2 = dt * dt;
 }
 
 Physics.prototype.setBounds = function (width, height) {
@@ -11,18 +13,18 @@ Physics.prototype.setBounds = function (width, height) {
 	this.height = height;
 }
 
-Physics.prototype.update = function (body, dt) {
+Physics.prototype.update = function (body) {
 	//compute acceleration
-	body.acceleration = body.force.scale(body.inverseMass);
+	var acceleration = body.force.scale(body.inverseMass);
 	
-	//perform Euler integration
-	body.velocity = body.velocity.scale(Math.pow(body.damping, dt)).add(body.acceleration.scale(dt));
+	//perform Euler integration with damping
+	body.position = body.position.add(body.velocity.scale(this.dt));
+	body.velocity = body.velocity.scale(Math.pow(body.damping, this.dt)).add(acceleration.scale(this.dt));
 	
+	//clamp body speed
 	if (body.maxSpeed >= 0) {
 		body.velocity = body.velocity.normalize().scale(clamp(body.velocity.norm(), 0, body.maxSpeed));
 	}
-		
-	body.position = body.position.add(body.velocity.scale(dt)).add(body.acceleration.scale(dt*dt));
 	
 	//bounds correction
 	if (body.position.x > this.width) {
