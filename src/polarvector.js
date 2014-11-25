@@ -6,6 +6,7 @@ function PolarVector(angle, length) {
 	Vector.call(this, length * Math.cos(angle), length * Math.sin(angle));
 }
 
-PolarVector.prototype = new Vector();
+PolarVector.prototype = Object.create(Vector.prototype);
+PolarVector.prototype.constructor = PolarVector;
 
 module.exports = PolarVector;

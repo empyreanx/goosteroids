@@ -9793,6 +9793,98 @@ return jQuery;
 },{}],10:[function(require,module,exports){
 'use strict';
 
+var Vector = require('./vector.js');
+
+function Body(mass, position, velocity, maxSpeed, damping) {
+	this.setMass(mass);
+	this.position = position;
+	this.velocity = velocity;
+	this.force = new Vector(0, 0);
+	this.maxSpeed = maxSpeed || -1;
+	this.damping = damping || 1;
+}
+
+Body.prototype.setMass = function (mass) {
+	if (mass == 0) {
+		throw Error("Mass cannot be zero!");
+	} else {
+		this.mass = mass;
+		this.inverseMass = 1 / mass;
+	}
+}
+
+Body.prototype.applyForce = function (force) {
+	this.force = this.force.add(force);
+}
+
+Body.prototype.clearForces = function () {
+	this.force = new Vector(0, 0);
+}
+
+Body.prototype.applyImpulse = function (force, dt) {
+	this.velocity.add(force.scale(this.inverseMass * dt));
+}
+
+module.exports = Body;
+
+},{"./vector.js":18}],11:[function(require,module,exports){
+'use strict'
+
+var Graphics = require("./graphics.js");
+var Particle = require("./particle.js");
+var Physics = require("./physics.js");
+var Vector = require("./vector.js");
+
+function Game(canvas, settings) {
+	this.fps = settings.fps;
+	this.dt = 1 / this.fps;
+	
+	this.graphics = new Graphics(canvas);
+	this.physics = new Physics(canvas.width, canvas.height, this.dt);
+	
+	this.particles = [];
+}
+
+Game.prototype.resizeCanvas = function (width, height) {
+	this.graphics.resizeCanvas(width, height);
+	this.physics.setBounds(width, height);
+}
+
+Game.prototype.setupStage = function () {
+}
+
+Game.prototype.update = function () {
+	for (var i = 0; i < this.particles.length; i++) {
+		this.particles[i].update(this.physics);
+	}
+}
+
+Game.prototype.render = function () {
+	this.graphics.clear();
+	
+	for (var i = 0; i < this.particles.length; i++) {
+		this.particles[i].render(this.graphics);
+	}
+}
+
+Game.prototype.loop = function () {
+	this.update();
+	this.render();
+}
+
+Game.prototype.startLoop = function () {
+	this.loopId = setInterval((function(self) { return function() { self.loop(); }})(this), this.dt * 1000);
+}
+
+Game.prototype.stopLoop = function () {
+	clearInterval(this.loopId);
+}
+
+module.exports = Game;
+
+},{"./graphics.js":12,"./particle.js":14,"./physics.js":15,"./vector.js":18}],12:[function(require,module,exports){
+'use strict';
+
 function Graphics(canvas) {
 	this.canvas = canvas;
 	this.ctx = canvas.getContext("2d");
@@ -9801,6 +9893,10 @@ function Graphics(canvas) {
 Graphics.prototype.resizeCanvas = function (width, height) {
 	this.canvas.width = width;
 	this.canvas.height = height;
+}
+
+Graphics.prototype.clear = function () {
+	this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 }
 
 Graphics.prototype.drawCircle = function (position, radius, color) {
@@ -9854,22 +9950,49 @@ Graphics.prototype.drawTriangle = function (position, vertices, orientation, int
 
 module.exports = Graphics;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var $ = require('jquery');
 
 var gameTpl = require('../tpl/game.hbs');
 $('body').html(gameTpl());
 
-var Physics = require("./physics.js");
-var Vector = require("./vector.js");
-var Graphics = require("./graphics.js");
+var settings = require('./settings.js');
+
+var Game = require('./game.js');
 
 var canvas = $('canvas').get(0);
-var graphics = new Graphics(canvas);
 
-graphics.drawCircle(new Vector(canvas.width/2, canvas.height/2), 5, 'black');
+var game = new Game(canvas, settings);
 
-},{"../tpl/game.hbs":15,"./graphics.js":10,"./physics.js":12,"./vector.js":14,"jquery":9}],12:[function(require,module,exports){
+game.setupStage();
+game.startLoop();
+
+
+},{"../tpl/game.hbs":19,"./game.js":11,"./settings.js":16,"jquery":9}],14:[function(require,module,exports){
+'use strict';
+
+var Body = require('./body.js');
+
+function Particle(mass, radius, position, velocity, color, maxSpeed, damping) {
+	Body.call(this, mass, position, velocity, maxSpeed, damping);
+	this.radius = radius;
+	this.color = color;
+}
+
+Particle.prototype = Object.create(Body.prototype);
+Particle.prototype.constructor = Particle;
+
+Particle.prototype.update = function (physics) {
+	physics.update(this);
+}
+
+Particle.prototype.render = function (graphics) {
+	graphics.drawCircle(this.position, this.radius, this.color);
+}
+
+module.exports = Particle;
+
+},{"./body.js":10}],15:[function(require,module,exports){
 'use strict';
 
 var clamp = require("./utilities.js").clamp;
@@ -9877,7 +10000,6 @@ var clamp = require("./utilities.js").clamp;
 function Physics(width, height, dt) {
 	this.setBounds(width, height);
 	this.dt = dt;
-	this.dt2 = dt * dt;
 }
 
 Physics.prototype.setBounds = function (width, height) {
@@ -9890,7 +10012,7 @@ Physics.prototype.update = function (body) {
 	var acceleration = body.force.scale(body.inverseMass);
 	
 	//perform Euler integration with damping
-	body.position = body.position.add(body.velocity.scale(this.dt));
+	body.position = body.position.add(body.velocity.scale(this.dt));	
 	body.velocity = body.velocity.scale(Math.pow(body.damping, this.dt)).add(acceleration.scale(this.dt));
 	
 	//clamp body speed
@@ -9918,7 +10040,16 @@ Physics.prototype.update = function (body) {
 
 module.exports = Physics;
 
-},{"./utilities.js":13}],13:[function(require,module,exports){
+},{"./utilities.js":17}],16:[function(require,module,exports){
+'use strict';
+
+var settings = {
+	fps: 30
+};
+
+module.exports = settings;
+
+},{}],17:[function(require,module,exports){
 'use strict';
 
 exports.clamp = function (c, min, max) {
@@ -9930,7 +10061,7 @@ exports.clamp = function (c, min, max) {
 		return c;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var Vector = function (x, y) {
@@ -9986,11 +10117,11 @@ Vector.prototype.toString = function() {
 
 module.exports = Vector;
 
-},{}],15:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
   return "<canvas width='1000' height='500'></canvas>\n";
   },"useData":true});
 
-},{"hbsfy/runtime":8}]},{},[11]);
+},{"hbsfy/runtime":8}]},{},[13]);

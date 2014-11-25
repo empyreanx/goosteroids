@@ -17,7 +17,7 @@ Physics.prototype.update = function (body) {
 	var acceleration = body.force.scale(body.inverseMass);
 	
 	//perform Euler integration with damping
-	body.position = body.position.add(body.velocity.scale(this.dt));
+	body.position = body.position.add(body.velocity.scale(this.dt));	
 	body.velocity = body.velocity.scale(Math.pow(body.damping, this.dt)).add(acceleration.scale(this.dt));
 	
 	//clamp body speed

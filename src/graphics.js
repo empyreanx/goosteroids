@@ -10,6 +10,10 @@ Graphics.prototype.resizeCanvas = function (width, height) {
 	this.canvas.height = height;
 }
 
+Graphics.prototype.clear = function () {
+	this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+}
+
 Graphics.prototype.drawCircle = function (position, radius, color) {
 	this.ctx.beginPath();
 	this.ctx.fillStyle = color;
