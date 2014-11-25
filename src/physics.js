@@ -5,7 +5,6 @@ var clamp = require("./utilities.js").clamp;
 function Physics(width, height, dt) {
 	this.setBounds(width, height);
 	this.dt = dt;
-	this.dt2 = dt * dt;
 }
 
 Physics.prototype.setBounds = function (width, height) {
