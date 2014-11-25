@@ -12,17 +12,20 @@ module.exports = function(grunt) {
     browserify: {
       dev: {
         files: {
-          'web/js/app.js': ['src/index.js']
+          'web/js/app.js': ['src/main.js']
         },
         options: {
-          debug: true
+          debug: true,
+          transform: ['hbsfy']
         }
       },
       prod: {
         files: {
-          'tmp/app.js': ['src/index.js']
+          'tmp/app.js': ['src/main.js'],
         },
-        options: {}
+        options: {
+          transform: ['hbsfy']
+	}
       }
     },
 
