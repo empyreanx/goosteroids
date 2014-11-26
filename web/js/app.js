@@ -9827,80 +9827,141 @@ Body.prototype.applyImpulse = function (force, dt) {
 
 module.exports = Body;
 
-},{"./vector.js":18}],11:[function(require,module,exports){
+},{"./vector.js":20}],11:[function(require,module,exports){
 'use strict';
 
 var Graphics = require('./graphics.js');
+var Keyboard = require('./keyboard.js');
 var Particle = require('./particle.js');
 var Physics = require('./physics.js');
+var Ship = require('./ship.js');
 var Vector = require('./vector.js');
-var Keyboard = require('./keyboard.js');
 
+
+/*
+ * Encapuslates game control
+ */
 function Game(canvas, settings) {
+	this.canvas = canvas;
 	this.settings = settings;
+	
 	this.dt = 1 / settings.fps;
 	
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
 	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
 	
-	this.ship = null;
+	this.ship = new Ship(new Vector(canvas.width / 2, canvas.height / 2), settings.ship);
+	
 	this.particles = [];
 	
 	this.setupEvents();
 }
 
+/*
+ * Setup event handlers
+ */
+Game.prototype.setupEvents = function() {
+	this.keyboard.keyUp(Keyboard.keys.up, this, function() {
+		this.ship.accelerating = 0;
+	});
+	
+	this.keyboard.keyDown(Keyboard.keys.up, this, function() {
+		this.ship.accelerating = 1;
+	});
+	
+	this.keyboard.keyUp(Keyboard.keys.left, this, function() {
+		this.ship.turning = 0;
+	});
+	
+	this.keyboard.keyDown(Keyboard.keys.left, this, function() {
+		this.ship.turning = -1;
+	});
+	
+	this.keyboard.keyUp(Keyboard.keys.right, this, function() {
+		this.ship.turning = 0;
+	});
+	
+	this.keyboard.keyDown(Keyboard.keys.right, this, function() {
+		this.ship.turning = 1;
+	});
+}
+
+/*
+ * Resizes game canvas. Can be called on the fly.
+ */
 Game.prototype.resizeCanvas = function (width, height) {
 	this.graphics.resizeCanvas(width, height);
 	this.physics.setBounds(width, height);
 }
 
-Game.prototype.setupEvents = function() {
-	this.keyboard.keyUp(Keyboard.keys.spacebar, function() {
-		alert('hi');
-	});
-}
 
-Game.prototype.setupStage = function () {
-	var particle = new Particle(1, 5, new Vector(this.physics.width / 2, this.physics.height / 2), new Vector(0, 10), 'black');
-	
-	particle.applyForce(new Vector(0, 10));
-	
-	this.particles.push(particle);
+/*
+ * Setup stage
+ */
+Game.prototype.setupStage = function (stage) {
+	this.ship.position = new Vector(this.canvas.width / 2, this.canvas.height / 2);
 	
 	this.keyboard.enableEvents();
 }
 
+/*
+ * Update game state
+ */
 Game.prototype.update = function () {
 	for (var i = 0; i < this.particles.length; i++) {
 		this.particles[i].update(this.physics);
 	}
+	
+	this.ship.update(this.physics);
 }
 
+/*
+ * Render game entities
+ */
 Game.prototype.render = function () {
 	this.graphics.clear();
 	
 	for (var i = 0; i < this.particles.length; i++) {
 		this.particles[i].render(this.graphics);
 	}
+	
+	this.ship.render(this.graphics);
 }
 
+/*
+ * Render heads up display (health, score, lives remaining etc...)
+ */
+Game.prototype.renderHUD = function () {
+	
+}
+
+/*
+ * Main game loop
+ */
 Game.prototype.loop = function () {
 	this.update();
 	this.render();
+	this.renderHUD();
 }
 
+/*
+ * Starts game loop
+ */
 Game.prototype.startLoop = function () {
 	this.loopId = setInterval((function(self) { return function() { self.loop(); }})(this), this.dt * 1000);
 }
 
+/*
+ * Stops game loop
+ */
 Game.prototype.stopLoop = function () {
 	clearInterval(this.loopId);
 }
 
 module.exports = Game;
 
-},{"./graphics.js":12,"./keyboard.js":13,"./particle.js":15,"./physics.js":16,"./vector.js":18}],12:[function(require,module,exports){
+},{"./graphics.js":12,"./keyboard.js":13,"./particle.js":15,"./physics.js":16,"./ship.js":18,"./vector.js":20}],12:[function(require,module,exports){
 'use strict';
 
 function Graphics(canvas) {
@@ -9925,8 +9986,11 @@ Graphics.prototype.drawCircle = function (position, radius, color) {
 	this.ctx.fill();
 }
 
-Graphics.prototype.drawPolyLine = function (vertices, interiorColor, borderColor, borderWidth, isClosed) {
+Graphics.prototype.drawPolyLine = function (position, orientation, vertices, interiorColor, borderColor, borderWidth, isClosed) {
 	this.ctx.save();
+	
+	this.ctx.translate(position.x, position.y);
+	this.ctx.rotate(orientation);
 	
 	this.ctx.beginPath();
 	this.ctx.moveTo(vertices[0].x, vertices[0].y);
@@ -9951,17 +10015,6 @@ Graphics.prototype.drawPolyLine = function (vertices, interiorColor, borderColor
 			this.ctx.stroke();
 		}
 	}
-	
-	this.ctx.restore();
-}
-
-Graphics.prototype.drawTriangle = function (position, vertices, orientation, interiorColor, borderColor, borderWidth) {
-	this.ctx.save();
-	
-	this.ctx.translate(position.x, position.y);
-	this.ctx.rotate(orientation);
-		
-	this.drawPolyLine(vertices, interiorColor, borderColor, borderWidth, true);
 	
 	this.ctx.restore();
 }
@@ -9993,45 +10046,66 @@ function Keyboard(enabled) {
 
 Keyboard.keys = keys;
 
-Keyboard.prototype.enableEvents = function() {
-	this.enabled = true;
-}
-
-Keyboard.prototype.disableEvents = function () {
-	this.enabled = false;
-}
-
+/*
+ * Clears event handlers
+ */
 Keyboard.prototype.clearHandlers = function () {
 	this.handlers = { up: [], down: [] };
 }
 
-Keyboard.prototype.keyUp = function (code, handler) {
+/*
+ * Enables event handlers
+ */
+Keyboard.prototype.enableEvents = function() {
+	this.enabled = true;
+}
+
+/*
+ * Disables event handlers
+ */
+Keyboard.prototype.disableEvents = function () {
+	this.enabled = false;
+}
+
+/*
+ * Bind key up event handler
+ */
+Keyboard.prototype.keyUp = function (code, obj, handler) {
 	this.handlers.up[code] = handler;
+	this.handlers.up[code].obj = obj; //hack to attach calling object to this
 }
 
-Keyboard.prototype.keyDown = function (code, handler) {
+/*
+ * Bind key down event handler
+ */
+Keyboard.prototype.keyDown = function (code, obj, handler) {
 	this.handlers.down[code] = handler;
+	this.handlers.down[code].obj = obj; //hack to attach calling object to this
 }
 
+/*
+ * Internal key up event handler
+ */
 Keyboard.prototype.onKeyUp = function (event) {
 	if (this.enabled) {
 		var code = event.which || window.event.keyCode;
 		
 		if (this.handlers.up[code]) {
-			this.handlers.up[code].call();
+			this.handlers.up[code].call(this.handlers.up[code].obj);
 			event.preventDefault();
 		}
 	}
 }
 
+/*
+ * Internal key down event handler
+ */
 Keyboard.prototype.onKeyDown = function (event) {
 	if (this.enabled) {
 		var code = event.which || window.event.keyCode;
-		
-		console.log(code);
-		
+				
 		if (this.handlers.down[code]) {
-			this.handlers.down[code].call();
+			this.handlers.down[code].call(this.handlers.down[code].obj);
 			event.preventDefault();
 		}
 	}
@@ -10047,7 +10121,19 @@ var Game = require('./game.js');
 var templates = { game: require('../tpl/game.hbs') };
 
 var settings = { 
-	fps: 30
+	fps: 30,
+	
+	ship: {
+		damping: 0.5,
+		maxSpeed: 400,
+		thrust: 500,
+		turnRate: 7.5,
+		interiorColor: 'white',
+		borderColor: 'black',
+		borderWidth: 3,
+		base: 15,
+		height: 25
+	}
 };
 
 $(function() {
@@ -10060,7 +10146,7 @@ $(function() {
 	game.startLoop();
 });
 
-},{"../tpl/game.hbs":19,"./game.js":11,"jquery":9}],15:[function(require,module,exports){
+},{"../tpl/game.hbs":21,"./game.js":11,"jquery":9}],15:[function(require,module,exports){
 'use strict';
 
 var Body = require('./body.js');
@@ -10133,7 +10219,89 @@ Physics.prototype.update = function (body) {
 
 module.exports = Physics;
 
-},{"./utilities.js":17}],17:[function(require,module,exports){
+},{"./utilities.js":19}],17:[function(require,module,exports){
+'use strict';
+
+var Vector = require("./vector.js");
+
+function PolarVector(angle, length) {
+	Vector.call(this, length * Math.cos(angle), length * Math.sin(angle));
+}
+
+PolarVector.prototype = Object.create(Vector.prototype);
+PolarVector.prototype.constructor = PolarVector;
+
+module.exports = PolarVector;
+
+},{"./vector.js":20}],18:[function(require,module,exports){
+'use strict';
+
+var Body = require('./body.js');
+var Vector = require('./vector.js');
+var PolarVector = require('./polarvector.js');
+
+function isoscelesTriangle(base, height) {
+	var hypotenuse = Math.sqrt(height * height + (1.0 / 4.0) * base * base);
+	var theta = Math.atan((2.0 * height) / base);
+	
+	var v1 = new Vector(0, 0);
+	var v2 = new PolarVector(theta, hypotenuse);
+	var v3 = new PolarVector(0, base);
+	
+	var center = v1.add(v2.add(v3)).scale(1/3); //find centroid
+	
+	v1 = v1.sub(center);
+	v2 = v2.sub(center);
+	v3 = v3.sub(center);
+	
+	return [ v1, v2, v3 ];
+}
+
+function Ship(position, settings) {
+	Body.call(this, 1.0, position, new Vector(0, 0), settings.maxSpeed, settings.damping);
+	
+	this.settings = settings;
+	
+	this.accelerating = 0;				//equal to 1 if the ship is accelerating, 0 otherwise
+	this.turning = 0;					//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
+	
+	this.model = null;
+	
+	this.orientation = -Math.PI / 2;	//note the value is negative because we are working in screen coordinates
+}
+
+Ship.prototype = Object.create(Body.prototype);
+Ship.prototype.constructor = Ship;
+
+Ship.prototype.getModel = function() {
+	if (!this.model) {
+		this.model = isoscelesTriangle(this.settings.base, this.settings.height);
+	}
+	
+	return this.model;
+}
+
+Ship.prototype.getEngineFlames = function() {
+	return [];
+}
+
+Ship.prototype.update = function (physics) {
+	this.orientation += this.turning * this.settings.turnRate * physics.dt;
+	
+	this.applyForce(new PolarVector(this.orientation, 1).scale(this.accelerating * this.settings.thrust));
+	
+	physics.update(this);
+	
+	this.clearForces();
+}
+
+Ship.prototype.render = function (graphics) {
+	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.getModel(), this.settings.interiorColor, this.settings.borderColor, this.settings.borderWidth, true);
+}
+
+module.exports = Ship;
+
+},{"./body.js":10,"./polarvector.js":17,"./vector.js":20}],19:[function(require,module,exports){
 'use strict';
 
 exports.clamp = function (c, min, max) {
@@ -10145,10 +10313,10 @@ exports.clamp = function (c, min, max) {
 		return c;
 }
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
-var Vector = function (x, y) {
+function Vector(x, y) {
 	this.x = x;
 	this.y = y;
 }
@@ -10201,7 +10369,7 @@ Vector.prototype.toString = function() {
 
 module.exports = Vector;
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {

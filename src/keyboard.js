@@ -22,45 +22,66 @@ function Keyboard(enabled) {
 
 Keyboard.keys = keys;
 
-Keyboard.prototype.enableEvents = function() {
-	this.enabled = true;
-}
-
-Keyboard.prototype.disableEvents = function () {
-	this.enabled = false;
-}
-
+/*
+ * Clears event handlers
+ */
 Keyboard.prototype.clearHandlers = function () {
 	this.handlers = { up: [], down: [] };
 }
 
-Keyboard.prototype.keyUp = function (code, handler) {
+/*
+ * Enables event handlers
+ */
+Keyboard.prototype.enableEvents = function() {
+	this.enabled = true;
+}
+
+/*
+ * Disables event handlers
+ */
+Keyboard.prototype.disableEvents = function () {
+	this.enabled = false;
+}
+
+/*
+ * Bind key up event handler
+ */
+Keyboard.prototype.keyUp = function (code, obj, handler) {
 	this.handlers.up[code] = handler;
+	this.handlers.up[code].obj = obj; //hack to attach calling object to this
 }
 
-Keyboard.prototype.keyDown = function (code, handler) {
+/*
+ * Bind key down event handler
+ */
+Keyboard.prototype.keyDown = function (code, obj, handler) {
 	this.handlers.down[code] = handler;
+	this.handlers.down[code].obj = obj; //hack to attach calling object to this
 }
 
+/*
+ * Internal key up event handler
+ */
 Keyboard.prototype.onKeyUp = function (event) {
 	if (this.enabled) {
 		var code = event.which || window.event.keyCode;
 		
 		if (this.handlers.up[code]) {
-			this.handlers.up[code].call();
+			this.handlers.up[code].call(this.handlers.up[code].obj);
 			event.preventDefault();
 		}
 	}
 }
 
+/*
+ * Internal key down event handler
+ */
 Keyboard.prototype.onKeyDown = function (event) {
 	if (this.enabled) {
 		var code = event.which || window.event.keyCode;
-		
-		console.log(code);
-		
+				
 		if (this.handlers.down[code]) {
-			this.handlers.down[code].call();
+			this.handlers.down[code].call(this.handlers.down[code].obj);
 			event.preventDefault();
 		}
 	}
