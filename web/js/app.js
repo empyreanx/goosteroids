@@ -9828,21 +9828,26 @@ Body.prototype.applyImpulse = function (force, dt) {
 module.exports = Body;
 
 },{"./vector.js":18}],11:[function(require,module,exports){
-'use strict'
+'use strict';
 
-var Graphics = require("./graphics.js");
-var Particle = require("./particle.js");
-var Physics = require("./physics.js");
-var Vector = require("./vector.js");
+var Graphics = require('./graphics.js');
+var Particle = require('./particle.js');
+var Physics = require('./physics.js');
+var Vector = require('./vector.js');
+var Keyboard = require('./keyboard.js');
 
 function Game(canvas, settings) {
-	this.fps = settings.fps;
-	this.dt = 1 / this.fps;
+	this.settings = settings;
+	this.dt = 1 / settings.fps;
 	
+	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
-	this.physics = new Physics(canvas.width, canvas.height, this.dt);
+	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
 	
+	this.ship = null;
 	this.particles = [];
+	
+	this.setupEvents();
 }
 
 Game.prototype.resizeCanvas = function (width, height) {
@@ -9850,7 +9855,20 @@ Game.prototype.resizeCanvas = function (width, height) {
 	this.physics.setBounds(width, height);
 }
 
+Game.prototype.setupEvents = function() {
+	this.keyboard.keyUp(Keyboard.keys.spacebar, function() {
+		alert('hi');
+	});
+}
+
 Game.prototype.setupStage = function () {
+	var particle = new Particle(1, 5, new Vector(this.physics.width / 2, this.physics.height / 2), new Vector(0, 10), 'black');
+	
+	particle.applyForce(new Vector(0, 10));
+	
+	this.particles.push(particle);
+	
+	this.keyboard.enableEvents();
 }
 
 Game.prototype.update = function () {
@@ -9882,7 +9900,7 @@ Game.prototype.stopLoop = function () {
 
 module.exports = Game;
 
-},{"./graphics.js":12,"./particle.js":14,"./physics.js":15,"./vector.js":18}],12:[function(require,module,exports){
+},{"./graphics.js":12,"./keyboard.js":13,"./particle.js":15,"./physics.js":16,"./vector.js":18}],12:[function(require,module,exports){
 'use strict';
 
 function Graphics(canvas) {
@@ -9951,24 +9969,98 @@ Graphics.prototype.drawTriangle = function (position, vertices, orientation, int
 module.exports = Graphics;
 
 },{}],13:[function(require,module,exports){
+'use strict';
+
+var keys = { spacebar: 32, shift: 16, left: 37, right: 39, up: 38, down: 40 };
+
+function Keyboard(enabled) {
+	this.enabled = enabled || false;
+	
+	this.clearHandlers();
+	
+	document.onkeyup = (function (self) { 
+							return function(event) {
+								return self.onKeyUp(event);
+							}
+						})(this);
+	
+	document.onkeydown = (function (self) { 
+							return function(event) {
+								return self.onKeyDown(event);
+							}
+						})(this);
+}
+
+Keyboard.keys = keys;
+
+Keyboard.prototype.enableEvents = function() {
+	this.enabled = true;
+}
+
+Keyboard.prototype.disableEvents = function () {
+	this.enabled = false;
+}
+
+Keyboard.prototype.clearHandlers = function () {
+	this.handlers = { up: [], down: [] };
+}
+
+Keyboard.prototype.keyUp = function (code, handler) {
+	this.handlers.up[code] = handler;
+}
+
+Keyboard.prototype.keyDown = function (code, handler) {
+	this.handlers.down[code] = handler;
+}
+
+Keyboard.prototype.onKeyUp = function (event) {
+	if (this.enabled) {
+		var code = event.which || window.event.keyCode;
+		
+		if (this.handlers.up[code]) {
+			this.handlers.up[code].call();
+			event.preventDefault();
+		}
+	}
+}
+
+Keyboard.prototype.onKeyDown = function (event) {
+	if (this.enabled) {
+		var code = event.which || window.event.keyCode;
+		
+		console.log(code);
+		
+		if (this.handlers.down[code]) {
+			this.handlers.down[code].call();
+			event.preventDefault();
+		}
+	}
+}
+
+module.exports = Keyboard;
+
+},{}],14:[function(require,module,exports){
 var $ = require('jquery');
-
-var gameTpl = require('../tpl/game.hbs');
-$('body').html(gameTpl());
-
-var settings = require('./settings.js');
 
 var Game = require('./game.js');
 
-var canvas = $('canvas').get(0);
+var templates = { game: require('../tpl/game.hbs') };
 
-var game = new Game(canvas, settings);
+var settings = { 
+	fps: 30
+};
 
-game.setupStage();
-game.startLoop();
+$(function() {
+	$('body').html(templates.game);
+	
+	var canvas = $('canvas').get(0);
+	var game = new Game(canvas, settings);
+	
+	game.setupStage();
+	game.startLoop();
+});
 
-
-},{"../tpl/game.hbs":19,"./game.js":11,"./settings.js":16,"jquery":9}],14:[function(require,module,exports){
+},{"../tpl/game.hbs":19,"./game.js":11,"jquery":9}],15:[function(require,module,exports){
 'use strict';
 
 var Body = require('./body.js');
@@ -9979,6 +10071,7 @@ function Particle(mass, radius, position, velocity, color, maxSpeed, damping) {
 	this.color = color;
 }
 
+//Extend Body
 Particle.prototype = Object.create(Body.prototype);
 Particle.prototype.constructor = Particle;
 
@@ -9992,7 +10085,7 @@ Particle.prototype.render = function (graphics) {
 
 module.exports = Particle;
 
-},{"./body.js":10}],15:[function(require,module,exports){
+},{"./body.js":10}],16:[function(require,module,exports){
 'use strict';
 
 var clamp = require("./utilities.js").clamp;
@@ -10040,16 +10133,7 @@ Physics.prototype.update = function (body) {
 
 module.exports = Physics;
 
-},{"./utilities.js":17}],16:[function(require,module,exports){
-'use strict';
-
-var settings = {
-	fps: 30
-};
-
-module.exports = settings;
-
-},{}],17:[function(require,module,exports){
+},{"./utilities.js":17}],17:[function(require,module,exports){
 'use strict';
 
 exports.clamp = function (c, min, max) {
@@ -10124,4 +10208,4 @@ module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"
   return "<canvas width='1000' height='500'></canvas>\n";
   },"useData":true});
 
-},{"hbsfy/runtime":8}]},{},[13]);
+},{"hbsfy/runtime":8}]},{},[14]);

@@ -1,23 +1,34 @@
-'use strict'
+'use strict';
 
-var Graphics = require("./graphics.js");
-var Particle = require("./particle.js");
-var Physics = require("./physics.js");
-var Vector = require("./vector.js");
+var Graphics = require('./graphics.js');
+var Particle = require('./particle.js');
+var Physics = require('./physics.js');
+var Vector = require('./vector.js');
+var Keyboard = require('./keyboard.js');
 
 function Game(canvas, settings) {
-	this.fps = settings.fps;
-	this.dt = 1 / this.fps;
+	this.settings = settings;
+	this.dt = 1 / settings.fps;
 	
+	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
-	this.physics = new Physics(canvas.width, canvas.height, this.dt);
+	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
 	
+	this.ship = null;
 	this.particles = [];
+	
+	this.setupEvents();
 }
 
 Game.prototype.resizeCanvas = function (width, height) {
 	this.graphics.resizeCanvas(width, height);
 	this.physics.setBounds(width, height);
+}
+
+Game.prototype.setupEvents = function() {
+	this.keyboard.keyUp(Keyboard.keys.spacebar, function() {
+		alert('hi');
+	});
 }
 
 Game.prototype.setupStage = function () {
@@ -26,6 +37,8 @@ Game.prototype.setupStage = function () {
 	particle.applyForce(new Vector(0, 10));
 	
 	this.particles.push(particle);
+	
+	this.keyboard.enableEvents();
 }
 
 Game.prototype.update = function () {

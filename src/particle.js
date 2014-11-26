@@ -8,6 +8,7 @@ function Particle(mass, radius, position, velocity, color, maxSpeed, damping) {
 	this.color = color;
 }
 
+//Extend Body
 Particle.prototype = Object.create(Body.prototype);
 Particle.prototype.constructor = Particle;
 
