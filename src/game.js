@@ -20,6 +20,8 @@ function Game(canvas, settings) {
 	this.settings = settings;
 	
 	this.dt = 1 / settings.fps;
+	this.fireGun = false;
+	this.gunCooldown = 0;
 	
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
@@ -38,6 +40,7 @@ function Game(canvas, settings) {
  * Setup event handlers
  */
 Game.prototype.setupEvents = function() {
+	//accelerate
 	this.keyboard.keyUp(Keyboard.keys.up, this, function() {
 		this.ship.accelerating = 0;
 	});
@@ -46,6 +49,7 @@ Game.prototype.setupEvents = function() {
 		this.ship.accelerating = 1;
 	});
 	
+	//rotate left
 	this.keyboard.keyUp(Keyboard.keys.left, this, function() {
 		this.ship.turning = 0;
 	});
@@ -54,6 +58,7 @@ Game.prototype.setupEvents = function() {
 		this.ship.turning = -1;
 	});
 	
+	//rotate right
 	this.keyboard.keyUp(Keyboard.keys.right, this, function() {
 		this.ship.turning = 0;
 	});
@@ -62,8 +67,13 @@ Game.prototype.setupEvents = function() {
 		this.ship.turning = 1;
 	});
 	
+	//fire
 	this.keyboard.keyDown(Keyboard.keys.spacebar, this, function() {
-		this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
+		this.fireGun = true;
+	});
+	
+	this.keyboard.keyUp(Keyboard.keys.spacebar, this, function() {
+		this.fireGun = false;
 	});
 }
 
@@ -98,16 +108,30 @@ Game.prototype.setupStage = function (stage) {
  * Update game state
  */
 Game.prototype.update = function () {
+	//update globs
 	for (var i = 0; i < this.globs.length; i++) {
 		this.globs[i].update(this.physics, this.globs);
 	}
 	
+	//update particles
 	for (var i = 0; i < this.particles.length; i++) {
 		this.particles[i].update(this.physics);
 	}
 	
+	//update ship
 	this.ship.update(this.physics);
 	
+	//fire gun
+	if (this.gunCooldown == 0) {
+		if (this.fireGun) {
+			this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
+			this.gunCooldown = this.settings.gunCooldown;
+		}
+	} else {
+		this.gunCooldown--;
+	}
+	
+	//update bullets
 	for (var i = 0; i < this.bullets.length; i++) {
 		this.bullets[i].update(this.physics);
 		
