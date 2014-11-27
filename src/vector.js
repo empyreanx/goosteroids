@@ -1,5 +1,8 @@
 'use strict';
 
+/*
+ * Encapsulates a 2D vector
+ */ 
 function Vector(x, y) {
 	this.x = x;
 	this.y = y;

@@ -40,11 +40,4 @@ Body.prototype.clearForces = function () {
 	this.force = new Vector(0, 0);
 }
 
-/*
- * Applies an impulse to a body
- */
-Body.prototype.applyImpulse = function (force, dt) {
-	this.velocity = this.velocity.add(force.scale(this.inverseMass * dt));
-}
-
 module.exports = Body;
