@@ -72,8 +72,8 @@ function resolveVelocity(g1, g2, normal, cr) {
 	
 	var velocity = normal.scale(0.5 * cr * closingSpeed);
 	
-	g1.velocity = velocity.scale(-1);
-	g2.velocity = velocity;
+	g1.velocity = g1.velocity.add(velocity.scale(-1));
+	g2.velocity = g2.velocity.add(velocity);
 }
 
 module.exports = Glob;
