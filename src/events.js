@@ -1,19 +1,20 @@
 'use strict';
 
-function Events() {
-	this.clearHandlers();
+/*
+ * Global event handling
+ */
+var Events = { handlers: [] };
+
+Events.clearHandlers = function () {
+	Events.handlers = [];
 }
 
-Events.prototype.clearHandlers = function () {
-	this.handlers = [];
+Events.on = function(name, handler) {
+	Events.handlers[name] = handler;
 }
 
-Events.prototype.on = function (name, handler) {
-	this.handlers[name] = handler;
-}
-
-Events.prototype.trigger = function (name, data) {
-	this.handlers[name].call(null, data);
+Events.trigger = function (name, data) {
+	Events.handlers[name].call(null, data);
 }
 
 module.exports = Events;

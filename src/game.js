@@ -18,7 +18,6 @@ function Game(canvas, settings) {
 	
 	this.dt = 1 / settings.fps;
 	
-	this.events = new Events();
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
 	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
