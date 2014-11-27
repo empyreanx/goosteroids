@@ -5,27 +5,33 @@ var Vector = require('./vector.js');
 var PolarVector = require('./polarvector.js');
 
 /*
- * Represents the ship in the game
+ * Encapsulates the ship game object
  */
 function Ship(position, settings) {
 	Body.call(this, position, new Vector(0, 0), 1.0, settings.maxSpeed, settings.damping);
 	
 	this.settings = settings;
 	
-	this.accelerating = 0;												//equal to 1 if the ship is accelerating, 0 otherwise
-	this.turning = 0;													//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
-	
-	this.model = isoscelesTriangle(settings.base, settings.height);;	//initialized
+	this.model = isoscelesTriangle(settings.base, settings.height);;
 	
 	this.orientation = -Math.PI / 2;									//note the value is negative because we are working in screen coordinates
+	this.accelerating = 0;												//equal to 1 if the ship is accelerating, 0 otherwise
+	this.turning = 0;													//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
 }
 
+/*
+ * Extend Body
+ */
 Ship.prototype = Object.create(Body.prototype);
 Ship.prototype.constructor = Ship;
 
+/*
+ * Generate engine flames
+ */
 Ship.prototype.getEngineFlames = function() {
 	return [];
 }
+
 
 Ship.prototype.update = function (physics) {
 	//update physics

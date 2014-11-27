@@ -46,17 +46,17 @@ Keyboard.prototype.disableEvents = function () {
 /*
  * Bind key up event handler
  */
-Keyboard.prototype.keyUp = function (code, obj, handler) {
+Keyboard.prototype.keyUp = function (code, ctx, handler) {
 	this.handlers.up[code] = handler;
-	this.handlers.up[code].obj = obj; //hack to attach calling object to this
+	this.handlers.up[code].ctx = ctx; //hack to attach calling object to this
 }
 
 /*
  * Bind key down event handler
  */
-Keyboard.prototype.keyDown = function (code, obj, handler) {
+Keyboard.prototype.keyDown = function (code, ctx, handler) {
 	this.handlers.down[code] = handler;
-	this.handlers.down[code].obj = obj; //hack to attach calling object to this
+	this.handlers.down[code].ctx = ctx; //hack to attach calling object to this
 }
 
 /*
@@ -67,7 +67,7 @@ Keyboard.prototype.onKeyUp = function (event) {
 		var code = event.which || window.event.keyCode;
 		
 		if (this.handlers.up[code]) {
-			this.handlers.up[code].call(this.handlers.up[code].obj);
+			this.handlers.up[code].call(this.handlers.up[code].ctx);
 			event.preventDefault();
 		}
 	}
@@ -81,7 +81,7 @@ Keyboard.prototype.onKeyDown = function (event) {
 		var code = event.which || window.event.keyCode;
 				
 		if (this.handlers.down[code]) {
-			this.handlers.down[code].call(this.handlers.down[code].obj);
+			this.handlers.down[code].call(this.handlers.down[code].ctx);
 			event.preventDefault();
 		}
 	}

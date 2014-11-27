@@ -2,6 +2,7 @@
 
 var Glob = require('./glob.js');
 var Graphics = require('./graphics.js');
+var Events = require('./events.js');
 var Keyboard = require('./keyboard.js');
 var Particle = require('./particle.js');
 var Physics = require('./physics.js');
@@ -17,14 +18,15 @@ function Game(canvas, settings) {
 	
 	this.dt = 1 / settings.fps;
 	
+	this.events = new Events();
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
 	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
 	
 	this.ship = new Ship(new Vector(canvas.width / 2, canvas.height / 2), settings.ship);
 	
-	this.particles = [];
 	this.globs = [];
+	this.particles = [];
 	
 	this.setupEvents();
 }

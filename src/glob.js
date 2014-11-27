@@ -17,14 +17,23 @@ function gravity(g1, g2, magnitude, dropoff) {
 	}
 }
 
+/*
+ * Encapsulates of glob of grey goo
+ */
 function Glob(position, velocity, settings) {
 	Particle.call(this, position, velocity, 1.0, settings.radius, settings.color, settings.maxSpeed, settings.damping)
 	this.settings = settings;
 }
 
+/*
+ * Extends particle
+ */
 Glob.prototype = Object.create(Particle.prototype);
 Glob.prototype.constructor = Glob;
 
+/*
+ * Update glob state by one tick
+ */ 
 Glob.prototype.update = function (physics, globs) {
 	for (var i = 0; i < globs.length; i++) {
 		this.applyForce(gravity(this, globs[i], this.settings.magnitude, this.settings.dropoff));
