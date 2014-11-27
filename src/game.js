@@ -1,6 +1,8 @@
 'use strict';
 
+var Bullet = require('./bullet.js');
 var Glob = require('./glob.js');
+var GreyGoo = require('./greygoo.js');
 var Graphics = require('./graphics.js');
 var Events = require('./events.js');
 var Keyboard = require('./keyboard.js');
@@ -22,10 +24,11 @@ function Game(canvas, settings) {
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
 	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
-	
+	this.greyGoo = new GreyGoo(canvas.width, canvas.height, settings.greyGoo);
 	this.ship = new Ship(new Vector(canvas.width / 2, canvas.height / 2), settings.ship);
 	
 	this.globs = [];
+	this.bullets = [];
 	this.particles = [];
 	
 	this.setupEvents();
@@ -58,6 +61,10 @@ Game.prototype.setupEvents = function() {
 	this.keyboard.keyDown(Keyboard.keys.right, this, function() {
 		this.ship.turning = 1;
 	});
+	
+	this.keyboard.keyDown(Keyboard.keys.spacebar, this, function() {
+		this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
+	});
 }
 
 /*
@@ -65,6 +72,7 @@ Game.prototype.setupEvents = function() {
  */
 Game.prototype.resizeCanvas = function (width, height) {
 	this.graphics.resizeCanvas(width, height);
+	this.greyGoo.resizeCanvas(width, height);
 	this.physics.setBounds(width, height);
 }
 
@@ -99,6 +107,14 @@ Game.prototype.update = function () {
 	}
 	
 	this.ship.update(this.physics);
+	
+	for (var i = 0; i < this.bullets.length; i++) {
+		this.bullets[i].update(this.physics);
+		
+		if (this.bullets[i].lifetime == 0) {
+			this.bullets.splice(i, 1);
+		}
+	}
 }
 
 /*
@@ -107,15 +123,17 @@ Game.prototype.update = function () {
 Game.prototype.render = function () {
 	this.graphics.clear();
 	
+	this.greyGoo.render(this.canvas, this.globs);
+	
 	for (var i = 0; i < this.particles.length; i++) {
 		this.particles[i].render(this.graphics);
 	}
 	
-	this.ship.render(this.graphics);
-	
-	for (var i = 0; i < this.globs.length; i++) {
-		this.globs[i].render(this.graphics);
+	for (var i = 0; i < this.bullets.length; i++) {
+		this.bullets[i].render(this.graphics);
 	}
+	
+	this.ship.render(this.graphics);
 }
 
 /*

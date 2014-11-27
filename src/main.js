@@ -11,7 +11,7 @@ var settings = {
 		damping: 0.5,
 		maxSpeed: 400,
 		thrust: 450,
-		turnRate: 7.5,
+		turnRate: 5,
 		interiorColor: 'white',
 		borderColor: 'black',
 		borderWidth: 3,
@@ -25,8 +25,24 @@ var settings = {
 		damping: 1,
 		cr: 0.9,
 		color: '#b0b0b0',
-		magnitude: 30,
-		dropoff: 0.001
+		magnitude: 50,
+		dropoff: 0.005
+	},
+	
+	greyGoo: {
+		minThreshold: 150,
+		maxThreshold: 200,
+		gradientRadius: 15,
+		gradientStop0: 'rgba(80, 80, 80, 1)',
+		gradientStop1: 'rgba(80, 80, 80, 0)'
+	},
+	
+	bullet: {
+		speed: 700,
+		radius: 2,
+		killRadius: 12.5,
+		lifetime: 15,
+		color: 'black' 
 	}
 };
 

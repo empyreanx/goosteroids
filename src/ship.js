@@ -48,6 +48,13 @@ Ship.prototype.render = function (graphics) {
 	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.interiorColor, this.settings.borderColor, this.settings.borderWidth, true);
 }
 
+Ship.prototype.getFront = function () {
+	var front = this.model[1];
+	front = new PolarVector(front.angle() + this.orientation - Math.PI / 2, front.norm() + 2 * this.settings.borderWidth);
+	front = front.add(this.position);
+	return front;
+}
+
 /*
  * Utility function for generating an isosceles triangle
  */
