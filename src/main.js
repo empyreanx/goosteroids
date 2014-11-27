@@ -21,11 +21,11 @@ var settings = {
 	
 	glob: {
 		radius: 5,
-		maxSpeed: 400,
+		maxSpeed: 300,
 		damping: 1,
-		cr: 0.8,
+		cr: 1.0,
 		color: '#b0b0b0',
-		magnitude: 50,
+		magnitude: 30,
 		dropoff: 0.001
 	}
 };

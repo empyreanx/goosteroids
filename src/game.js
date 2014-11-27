@@ -9,6 +9,7 @@ var Physics = require('./physics.js');
 var Ship = require('./ship.js');
 var Vector = require('./vector.js');
 
+var random = require('./utilities').random;
 /*
  * Encapuslates game control
  */
@@ -73,8 +74,14 @@ Game.prototype.resizeCanvas = function (width, height) {
 Game.prototype.setupStage = function (stage) {
 	this.ship.position = new Vector(this.canvas.width / 2, this.canvas.height / 2);
 
-	this.globs.push(new Glob(new Vector(0, 0), new Vector(5, 10), this.settings.glob));
-	this.globs.push(new Glob(new Vector(this.canvas.width / 2, this.canvas.height / 2), new Vector(-10, 5), this.settings.glob));
+	for (var i = 0; i < 15; i++) {
+		var x = random(0, this.canvas.width);
+		var y = random(0, this.canvas.height);
+		this.globs.push(new Glob(new Vector(x, y), new Vector(0, 0), this.settings.glob));
+	}
+	
+	this.globs.push(new Glob(new Vector(0, 0), new Vector(50, 50), this.settings.glob));
+	this.globs.push(new Glob(new Vector(this.canvas.width, this.canvas.height), new Vector(-50, -50), this.settings.glob));
 	
 	this.keyboard.enableEvents();
 }
