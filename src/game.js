@@ -1,12 +1,12 @@
 'use strict';
 
+var Glob = require('./glob.js');
 var Graphics = require('./graphics.js');
 var Keyboard = require('./keyboard.js');
 var Particle = require('./particle.js');
 var Physics = require('./physics.js');
 var Ship = require('./ship.js');
 var Vector = require('./vector.js');
-
 
 /*
  * Encapuslates game control
@@ -24,6 +24,7 @@ function Game(canvas, settings) {
 	this.ship = new Ship(new Vector(canvas.width / 2, canvas.height / 2), settings.ship);
 	
 	this.particles = [];
+	this.globs = [];
 	
 	this.setupEvents();
 }
@@ -65,12 +66,14 @@ Game.prototype.resizeCanvas = function (width, height) {
 	this.physics.setBounds(width, height);
 }
 
-
 /*
  * Setup stage
  */
 Game.prototype.setupStage = function (stage) {
 	this.ship.position = new Vector(this.canvas.width / 2, this.canvas.height / 2);
+
+	this.globs.push(new Glob(new Vector(0, 0), new Vector(5, 10), this.settings.glob));
+	this.globs.push(new Glob(new Vector(this.canvas.width / 2, this.canvas.height / 2), new Vector(-10, 5), this.settings.glob));
 	
 	this.keyboard.enableEvents();
 }
@@ -79,6 +82,10 @@ Game.prototype.setupStage = function (stage) {
  * Update game state
  */
 Game.prototype.update = function () {
+	for (var i = 0; i < this.globs.length; i++) {
+		this.globs[i].update(this.physics, this.globs);
+	}
+	
 	for (var i = 0; i < this.particles.length; i++) {
 		this.particles[i].update(this.physics);
 	}
@@ -97,6 +104,10 @@ Game.prototype.render = function () {
 	}
 	
 	this.ship.render(this.graphics);
+	
+	for (var i = 0; i < this.globs.length; i++) {
+		this.globs[i].render(this.graphics);
+	}
 }
 
 /*

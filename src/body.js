@@ -2,7 +2,7 @@
 
 var Vector = require('./vector.js');
 
-function Body(mass, position, velocity, maxSpeed, damping) {
+function Body(position, velocity, mass, maxSpeed, damping) {
 	this.setMass(mass);
 	this.position = position;
 	this.velocity = velocity;

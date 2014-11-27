@@ -2,8 +2,8 @@
 
 var Body = require('./body.js');
 
-function Particle(mass, radius, position, velocity, color, maxSpeed, damping) {
-	Body.call(this, mass, position, velocity, maxSpeed, damping);
+function Particle(position, velocity, mass, radius, color, maxSpeed, damping) {
+	Body.call(this, position, velocity, mass, maxSpeed, damping);
 	this.radius = radius;
 	this.color = color;
 }
