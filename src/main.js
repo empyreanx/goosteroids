@@ -44,6 +44,19 @@ var settings = {
 		killRadius: 12.5,
 		lifetime: 15,
 		color: 'black' 
+	},
+	
+	explosion: {
+		glob: {
+			numParticles: 15,
+			magnitude: 250,
+			color: '#b0b0b0',
+			lifetime: 20
+		},
+		
+		ship: {
+			
+		}
 	}
 };
 

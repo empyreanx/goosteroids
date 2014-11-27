@@ -16,3 +16,7 @@ exports.random = function (min, max) {
 exports.randomInteger = function (min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;	
 }
+
+exports.remove = function (array, index) {
+	array.splice(index, 1);
+}

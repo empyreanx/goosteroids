@@ -5,6 +5,7 @@ var Glob = require('./glob.js');
 var GreyGoo = require('./greygoo.js');
 var Graphics = require('./graphics.js');
 var Events = require('./events.js');
+var Explosion = require('./explosion.js');
 var Keyboard = require('./keyboard.js');
 var Particle = require('./particle.js');
 var Physics = require('./physics.js');
@@ -12,6 +13,8 @@ var Ship = require('./ship.js');
 var Vector = require('./vector.js');
 
 var random = require('./utilities').random;
+var remove = require('./utilities').remove;
+
 /*
  * Encapuslates game control
  */
@@ -115,7 +118,11 @@ Game.prototype.update = function () {
 	
 	//update particles
 	for (var i = 0; i < this.particles.length; i++) {
-		this.particles[i].update(this.physics);
+		if (this.particles[i].lifetime == 0) {
+			remove(this.particles, i);
+		} else {
+			this.particles[i].update(this.physics);
+		}
 	}
 	
 	//update ship
@@ -133,10 +140,20 @@ Game.prototype.update = function () {
 	
 	//update bullets
 	for (var i = 0; i < this.bullets.length; i++) {
-		this.bullets[i].update(this.physics);
-		
 		if (this.bullets[i].lifetime == 0) {
-			this.bullets.splice(i, 1);
+			remove(this.bullets, j);
+		} else {
+			this.bullets[i].update(this.physics);
+			
+			for (var j = 0; j < this.globs.length; j++) {
+				
+				if (this.bullets[i].position.distance(this.globs[j].position) < this.settings.bullet.killRadius) {
+					Explosion.create(this.particles, this.globs[j].position, this.settings.explosion.glob);
+					remove(this.bullets, i);
+					remove(this.globs, j);
+					break;
+				}
+			}
 		}
 	}
 }

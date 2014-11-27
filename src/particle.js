@@ -5,10 +5,11 @@ var Body = require('./body.js');
 /*
  * Encapsulates a particle
  */
-function Particle(position, velocity, mass, radius, color, maxSpeed, damping) {
+function Particle(position, velocity, mass, radius, color, maxSpeed, damping, lifetime) {
 	Body.call(this, position, velocity, mass, maxSpeed, damping);
 	this.radius = radius;
 	this.color = color;
+	this.lifetime = lifetime || -1;
 }
 
 /*
@@ -22,6 +23,9 @@ Particle.prototype.constructor = Particle;
  */
 Particle.prototype.update = function (physics) {
 	physics.update(this);
+	
+	if (this.lifetime > 0)
+		this.lifetime--;
 }
 
 /*
