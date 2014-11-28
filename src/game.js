@@ -145,6 +145,7 @@ Game.prototype.update = function () {
 			var hit = false;
 			
 			for (var j = 0; !hit && j < this.globs.length; j++) {
+				//detect and handle hit
 				if (this.bullets[i].position.distance(this.globs[j].position) < this.settings.bullet.killRadius) {
 					hit = true;
 					Explosion.debris(this.debris, this.globs[j].position, this.settings.explosion.glob);
@@ -154,6 +155,7 @@ Game.prototype.update = function () {
 				}
 			}
 			
+			//update state if bullet didn't hit
 			if (!hit) {
 				this.bullets[i].update(this.physics);
 			}

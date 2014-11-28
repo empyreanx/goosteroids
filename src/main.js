@@ -17,7 +17,11 @@ var settings = {
 		borderColor: 'black',
 		borderWidth: 3,
 		base: 15,
-		height: 25
+		height: 25,
+		flameStep: 2,
+		flameMagnitude: 6,
+		flameColor: 'blue',
+		flameThickness: 2
 	},
 	
 	glob: {

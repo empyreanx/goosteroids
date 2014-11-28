@@ -4,6 +4,8 @@ var Body = require('./body.js');
 var Vector = require('./vector.js');
 var PolarVector = require('./polarvector.js');
 
+var random = require('./utilities.js').random;
+
 /*
  * Encapsulates the ship game object
  */
@@ -28,11 +30,23 @@ Ship.prototype.constructor = Ship;
 /*
  * Generate engine flames
  */
-Ship.prototype.getEngineFlames = function() {
-	return [];
+Ship.prototype.getEngineFlames = function(flameStep, magnitude) {
+	var start = this.model[0];
+	
+	var flames = [ start ];
+	
+	for (var dist = flameStep; dist < this.settings.base; dist += flameStep) {
+		flames.push(new Vector(start.x + dist, start.y - random(0, magnitude) - 2));
+	}
+	
+	flames.push(this.model[this.model.length - 1]);
+	
+	return flames;
 }
 
-
+/*
+ * Updates the state of the ship by one tick
+ */
 Ship.prototype.update = function (physics) {
 	//update physics
 	this.orientation += this.turning * this.settings.turnRate * physics.dt;
@@ -44,10 +58,21 @@ Ship.prototype.update = function (physics) {
 	this.clearForces();
 }
 
+/*
+ * Renders the ship and engine flames
+ */ 
 Ship.prototype.render = function (graphics) {
-	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.interiorColor, this.settings.borderColor, this.settings.borderWidth, true);
+	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.borderWidth, this.settings.borderColor, this.settings.interiorColor, true);
+	
+	if (this.accelerating) {
+		console.log(this.settings.flameMagnitude);
+		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.getEngineFlames(this.settings.flameStep, this.settings.flameMagnitude), this.settings.flameThickness, this.settings.flameColor);
+	}
 }
 
+/*
+ * Returns a vector pointing to the front of the ship
+ */
 Ship.prototype.getFront = function () {
 	var front = this.model[1];
 	front = new PolarVector(front.angle() + this.orientation - Math.PI / 2, front.norm() + 2 * this.settings.borderWidth);

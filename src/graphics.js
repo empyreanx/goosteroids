@@ -22,7 +22,7 @@ Graphics.prototype.drawCircle = function (position, radius, color) {
 	this.ctx.fill();
 }
 
-Graphics.prototype.drawPolyLine = function (position, orientation, vertices, interiorColor, borderColor, borderWidth, isClosed) {
+Graphics.prototype.drawPolyLine = function (position, orientation, vertices, borderWidth, borderColor, interiorColor, isClosed) {
 	this.ctx.save();
 	
 	this.ctx.translate(position.x, position.y);
@@ -40,9 +40,12 @@ Graphics.prototype.drawPolyLine = function (position, orientation, vertices, int
 		this.ctx.fill();
 	}
 	
-	if (borderColor) {
+	if (borderWidth) {
 		this.ctx.lineWidth = borderWidth;
-		this.ctx.strokeStyle = borderColor;
+		
+		if (borderColor) {
+			this.ctx.strokeStyle = borderColor;
+		}
 		
 		if (isClosed) {
 			this.ctx.closePath();
