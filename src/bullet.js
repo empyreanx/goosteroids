@@ -8,6 +8,7 @@ var PolarVector = require('./polarvector.js');
  */
 function Bullet(position, angle, settings) {
 	Particle.call(this, position, new PolarVector(angle, settings.speed), 1.0, settings.radius, settings.color, -1, 1, settings.lifetime);
+	this.settings = settings;
 }
 
 /*
@@ -15,5 +16,9 @@ function Bullet(position, angle, settings) {
  */
 Bullet.prototype = Object.create(Particle.prototype);
 Bullet.prototype.constructor = Particle.prototype;
+
+Bullet.prototype.collidingWith = function (glob) {
+	return (this.position.distance(glob.position) < this.settings.killRadius);
+}
 
 module.exports = Bullet;

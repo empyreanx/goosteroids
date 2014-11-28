@@ -110,6 +110,10 @@ Game.prototype.setupStage = function (stage) {
 Game.prototype.update = function () {
 	//update globs
 	for (var i = 0; i < this.globs.length; i++) {
+		if (this.ship.collidingWith(this.globs[i])) {
+			console.log('ship dead');
+		}
+		
 		this.globs[i].update(this.physics, this.globs);
 	}
 	
@@ -146,7 +150,7 @@ Game.prototype.update = function () {
 			
 			for (var j = 0; !hit && j < this.globs.length; j++) {
 				//detect and handle hit
-				if (this.bullets[i].position.distance(this.globs[j].position) < this.settings.bullet.killRadius) {
+				if (this.bullets[i].collidingWith(this.globs[j])) {
 					hit = true;
 					Explosion.debris(this.debris, this.globs[j].position, this.settings.explosion.glob);
 					Explosion.blast(this.globs, this.globs[j].position, this.settings.explosion.glob);

@@ -31,7 +31,8 @@ var settings = {
 		cr: 0.9,
 		color: '#b0b0b0',
 		magnitude: 50,
-		dropoff: 0.005
+		dropoff: 0.005,
+		killRadius: 10
 	},
 	
 	greyGoo: {
@@ -47,7 +48,7 @@ var settings = {
 		radius: 2,
 		killRadius: 12.5,
 		lifetime: 25,
-		color: 'black' 
+		color: 'red' 
 	},
 	
 	explosion: {
@@ -63,7 +64,7 @@ var settings = {
 		ship: {
 			numParticles: 30,
 			magnitude: 300,
-			color: '#b0b0b0',
+			color: 'black',
 			lifetime: 30
 		}
 	}

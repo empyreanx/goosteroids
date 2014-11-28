@@ -28,6 +28,16 @@ Ship.prototype = Object.create(Body.prototype);
 Ship.prototype.constructor = Ship;
 
 /*
+ * Returns a vector pointing to the front of the ship
+ */
+Ship.prototype.getFront = function () {
+	var front = this.model[1];
+	front = new PolarVector(front.angle() + this.orientation - Math.PI / 2, front.norm() + 2 * this.settings.borderWidth);
+	front = front.add(this.position);
+	return front;
+}
+
+/*
  * Generate engine flames
  */
 Ship.prototype.getEngineFlames = function(flameStep, magnitude) {
@@ -65,23 +75,21 @@ Ship.prototype.render = function (graphics) {
 	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.borderWidth, this.settings.borderColor, this.settings.interiorColor, true);
 	
 	if (this.accelerating) {
-		console.log(this.settings.flameMagnitude);
 		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.getEngineFlames(this.settings.flameStep, this.settings.flameMagnitude), this.settings.flameThickness, this.settings.flameColor);
 	}
 }
 
 /*
- * Returns a vector pointing to the front of the ship
+ * Returns true if the ship is colliding with the glob, false ofherwise.
  */
-Ship.prototype.getFront = function () {
-	var front = this.model[1];
-	front = new PolarVector(front.angle() + this.orientation - Math.PI / 2, front.norm() + 2 * this.settings.borderWidth);
-	front = front.add(this.position);
-	return front;
+Ship.prototype.collidingWith = function (glob) {
+	//write glob position in ship's coordinate frame
+	var position = new PolarVector(glob.position.angle() - this.orientation + Math.PI / 2, glob.position.sub(this.position).norm());
+	return circleIntersectsTriangle(position, glob.settings.killRadius, this.model[0], this.model[1], this.model[2]);
 }
 
 /*
- * Utility function for generating an isosceles triangle
+ * Generates an isosceles triangle
  */
 function isoscelesTriangle(base, height) {
 	var hypotenuse = Math.sqrt(height * height + (1.0 / 4.0) * base * base);
@@ -100,5 +108,61 @@ function isoscelesTriangle(base, height) {
 	return [ v1, v2, v3 ];
 }
 
+/*
+ * Test if p1 and p2 are on the same side of the line l(x) = v1 + x(v2 - v1)
+ */
+function sameSide(p1, p2, v1, v2) {
+	var cp1 = p1.sub(v1).cross(v2.sub(v1));
+	var cp2 = p2.sub(v1).cross(v2.sub(v1));
+	return (cp1 * cp2 >= 0);
+}
+
+/*
+ * Tests if p is in the triangle [v1, v2, v3]
+ */
+function inTriangle(p, v1, v2, v3) {
+	return (sameSide(p, v3, v1, v2) && 
+			sameSide(p, v1, v2, v3) && 
+			sameSide(p, v2, v3, v1));
+}
+
+/*
+ * Computes the orthogonal projection of p onto the line l(x) = v1 + x(v2 - v1) 
+ */
+function orthogonalProjection(p, v1, v2) {
+	var t = p.sub(v1).dot(v2.sub(v1)) / v2.sub(v1).dot(v2.sub(v1));
+	var v = v1.add(v2.sub(v1).scale(t));
+	return { t: t, v: v };
+}
+
+/*
+ * Tests if the circle (center, radius) is in the triangle [v1, v2, v3]
+ */
+function circleIntersectsTriangle(center, radius, v1, v2, v3) {
+	if (inTriangle(center, v1, v2, v3))
+		return true;
+	
+	if (center.distance(v1) < radius ||
+		center.distance(v2) < radius ||
+		center.distance(v3) < radius)
+		return true;
+		
+	var proj = orthogonalProjection(center, v1, v2);
+	
+	if (0 < proj.t && proj.t < 1 && center.distance(proj.v) < radius)
+		return true;
+	
+	proj = orthogonalProjection(center, v2, v3);
+	
+	if (0 < proj.t && proj.t < 1 && center.distance(proj.v) < radius)
+		return true;
+	
+	proj = orthogonalProjection(center, v3, v1);
+	
+	if (0 < proj.t && proj.t < 1 && center.distance(proj.v) < radius)
+		return true;
+	
+	return false;
+}
 
 module.exports = Ship;
