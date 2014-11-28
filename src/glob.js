@@ -42,6 +42,18 @@ Glob.prototype.update = function (physics, globs) {
 	this.clearForces();
 }
 
+Glob.prototype.neighbours = function (globs, radius) {
+	var neighbours = [];
+	
+	for (var i = 0; i < globs.length; i++) {
+		if (this != globs[i] && this.position.distance(globs[i].position) < radius) {
+			neighbours.push(globs[i]);
+		}
+	}
+	
+	return neighbours;
+}
+
 /*
  * Calculates the force of "gravity" exerted on g1 by g2
  */

@@ -39,10 +39,10 @@ var settings = {
 	},
 	
 	bullet: {
-		speed: 700,
+		speed: 350,
 		radius: 2,
 		killRadius: 12.5,
-		lifetime: 15,
+		lifetime: 25,
 		color: 'black' 
 	},
 	
@@ -51,11 +51,16 @@ var settings = {
 			numParticles: 15,
 			magnitude: 250,
 			color: '#b0b0b0',
-			lifetime: 20
+			lifetime: 20,
+			blastRadius: 30,
+			blastMagnitude: 700
 		},
 		
 		ship: {
-			
+			numParticles: 30,
+			magnitude: 300,
+			color: '#b0b0b0',
+			lifetime: 30
 		}
 	}
 };

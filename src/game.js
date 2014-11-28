@@ -34,7 +34,7 @@ function Game(canvas, settings) {
 	
 	this.globs = [];
 	this.bullets = [];
-	this.particles = [];
+	this.debris = [];
 	
 	this.setupEvents();
 }
@@ -101,9 +101,6 @@ Game.prototype.setupStage = function (stage) {
 		this.globs.push(new Glob(new Vector(x, y), new Vector(0, 0), this.settings.glob));
 	}
 	
-	this.globs.push(new Glob(new Vector(0, 0), new Vector(50, 50), this.settings.glob));
-	this.globs.push(new Glob(new Vector(this.canvas.width, this.canvas.height), new Vector(-50, -50), this.settings.glob));
-	
 	this.keyboard.enableEvents();
 }
 
@@ -116,12 +113,12 @@ Game.prototype.update = function () {
 		this.globs[i].update(this.physics, this.globs);
 	}
 	
-	//update particles
-	for (var i = 0; i < this.particles.length; i++) {
-		if (this.particles[i].lifetime == 0) {
-			remove(this.particles, i);
+	//update debris from explosions
+	for (var i = 0; i < this.debris.length; i++) {
+		if (this.debris[i].lifetime == 0) {
+			remove(this.debris, i);
 		} else {
-			this.particles[i].update(this.physics);
+			this.debris[i].update(this.physics);
 		}
 	}
 	
@@ -141,18 +138,24 @@ Game.prototype.update = function () {
 	//update bullets
 	for (var i = 0; i < this.bullets.length; i++) {
 		if (this.bullets[i].lifetime == 0) {
-			remove(this.bullets, j);
+			remove(this.bullets, i);
 		} else {
 			this.bullets[i].update(this.physics);
 			
-			for (var j = 0; j < this.globs.length; j++) {
-				
+			var hit = false;
+			
+			for (var j = 0; !hit && j < this.globs.length; j++) {
 				if (this.bullets[i].position.distance(this.globs[j].position) < this.settings.bullet.killRadius) {
-					Explosion.create(this.particles, this.globs[j].position, this.settings.explosion.glob);
+					hit = true;
+					Explosion.debris(this.debris, this.globs[j].position, this.settings.explosion.glob);
+					Explosion.blast(this.globs, this.globs[j].position, this.settings.explosion.glob);
 					remove(this.bullets, i);
 					remove(this.globs, j);
-					break;
 				}
+			}
+			
+			if (!hit) {
+				this.bullets[i].update(this.physics);
 			}
 		}
 	}
@@ -166,8 +169,8 @@ Game.prototype.render = function () {
 	
 	this.greyGoo.render(this.canvas, this.globs);
 	
-	for (var i = 0; i < this.particles.length; i++) {
-		this.particles[i].render(this.graphics);
+	for (var i = 0; i < this.debris.length; i++) {
+		this.debris[i].render(this.graphics);
 	}
 	
 	for (var i = 0; i < this.bullets.length; i++) {
