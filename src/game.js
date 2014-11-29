@@ -26,6 +26,7 @@ function Game(canvas, settings) {
 
 	this.lives = settings.lives;	//number of lives remaining
 	this.score = 0;					//total accumulated points
+	this.stageOver = false;			//true if the stage is over false otherwise
 	
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
@@ -128,13 +129,15 @@ Game.prototype.resizeCanvas = function (width, height) {
  * Setup stage
  */
 Game.prototype.setupStage = function (stage) {
-	this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
+	this.reset();
 
 	for (var i = 0; i < stage * this.settings.globsPerStage; i++) {
 		var x = random(0, this.canvas.width);
 		var y = random(0, this.canvas.height);
 		this.globs.push(new Glob(new Vector(x, y), new Vector(0, 0), this.settings.glob));
 	}
+	
+	this.stageOver = false;
 }
 
 /*
@@ -149,10 +152,15 @@ Game.prototype.update = function () {
 			this.ship = null;
 			
 			if (this.lives == 0) {
-				Events.trigger('gameOver', this);
+				var that = this;
+				
+				//delay, then trigger game over
+				setTimeout(function () {
+					Events.trigger('gameOver', that);
+				}, 1000);
 			} else {
 				this.lives--;
-				this.respawnTime = this.settings.respawnTime;
+				this.respawnTime = this.settings.respawnTime;		
 				Events.trigger('respawn', this);
 			}
 			
@@ -213,8 +221,14 @@ Game.prototype.update = function () {
 		}
 	}
 	
-	if (this.globs.length == 0) {
-		Events.trigger('stageOver', this);
+	if (!this.stageOver && this.globs.length == 0) {
+		this.stageOver = true;
+		
+		var that = this;
+		
+		setTimeout (function () {
+			Events.trigger('stageOver', that);
+		}, 1000);
 	}
 }
 

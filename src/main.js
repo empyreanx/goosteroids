@@ -79,7 +79,6 @@ var stage = 1;
 
 Events.on('stageOver', function () {
 	this.stopLoop();
-	this.reset();
 	alert('stage over');
 	this.setupStage(++stage);
 	this.startLoop();
