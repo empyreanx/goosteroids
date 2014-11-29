@@ -23,10 +23,10 @@ function Ship(position, settings) {
 	this.boundaryModel.push(this.model[1].add(new Vector(0, 2 * this.settings.borderWidth)));
 	this.boundaryModel.push(this.model[2].add(new Vector(this.settings.borderWidth, 0)));
 	
-	this.orientation = -Math.PI / 2;									//note the value is negative because we are working in screen coordinates
-	this.accelerating = 0;												//equal to 1 if the ship is accelerating, 0 otherwise
-	this.turning = 0;													//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
-	this.alive = true;													//true if ship is alive
+	this.orientation = -Math.PI / 2;	//note the value is negative because we are working in screen coordinates
+	this.accelerating = 0;				//equal to 1 if the ship is accelerating, 0 otherwise
+	this.turning = 0;					//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
+	this.alive = true;					//true if ship is alive
 }
 
 /*

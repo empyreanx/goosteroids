@@ -23,8 +23,10 @@ function Game(canvas, settings) {
 	this.settings = settings;
 	
 	this.dt = 1 / settings.fps;
-	this.fireGun = false;
-	this.gunCooldown = 0;
+	this.fireGun = false;			//true if user is attempting to fire the ship's laser cannon
+	this.gunCooldown = 0;			//ticks remaining until gun can fire again
+	this.lives = settings.lives;	//number of lives remaining
+	this.score = 0;					//total accumulated points
 	
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
@@ -78,6 +80,28 @@ Game.prototype.setupEvents = function() {
 	this.keyboard.keyUp(Keyboard.keys.spacebar, this, function() {
 		this.fireGun = false;
 	});
+	
+	Events.on('gameOver', function () {
+		alert('gameOver: ' + this.score);
+	});
+	
+	Events.on('respawn', function () {
+		this.respawn(3);
+	});
+}
+
+Game.prototype.respawn = function (count) {
+	if (count == 0) {
+		this.ship.position = new Vector(this.canvas.width / 2, this.canvas.height / 2);
+		this.ship.orientation = -Math.PI / 2;
+		this.ship.alive = true;
+	} else {
+		var that = this;
+		
+		setTimeout(function () {
+			that.respawn(--count);
+		}, 1000);
+	}
 }
 
 /*
@@ -112,7 +136,16 @@ Game.prototype.update = function () {
 	for (var i = 0; i < this.globs.length; i++) {
 		if (this.ship.alive && this.ship.intersecting(this.globs[i])) {
 			this.ship.alive = false;
+			
 			Explosion.debris(this.debris, this.ship.position, this.settings.explosion.ship);
+			
+			if (this.lives == 0) {
+				Events.trigger('gameOver', this);
+			} else {
+				this.lives--;
+				Events.trigger('respawn', this);
+			}
+			
 			break;
 		}
 	
@@ -152,10 +185,11 @@ Game.prototype.update = function () {
 			
 			var hit = false;
 			
+			//detect and handle hit
 			for (var j = 0; !hit && j < this.globs.length; j++) {
-				//detect and handle hit
 				if (this.bullets[i].intersecting(this.globs[j])) {
 					hit = true;
+					this.score += this.settings.pointsPerGlob;
 					Explosion.debris(this.debris, this.globs[j].position, this.settings.explosion.glob);
 					Explosion.blast(this.globs, this.globs[j].position, this.settings.explosion.glob);
 					remove(this.bullets, i);

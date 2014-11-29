@@ -13,8 +13,9 @@ Events.on = function(name, handler) {
 	Events.handlers[name] = handler;
 }
 
-Events.trigger = function (name, data) {
-	Events.handlers[name].call(null, data);
+Events.trigger = function (name, ctx) {
+	if (Events.handlers[name])
+		Events.handlers[name].call(ctx);
 }
 
 module.exports = Events;

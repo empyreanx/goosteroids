@@ -6,6 +6,8 @@ var templates = { game: require('../tpl/game.hbs') };
 
 var settings = { 
 	fps: 30,
+	lives: 3,
+	pointsPerGlob: 10,
 	gunCooldown: 6,
 	
 	ship: {
