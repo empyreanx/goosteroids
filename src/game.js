@@ -110,10 +110,12 @@ Game.prototype.setupStage = function (stage) {
 Game.prototype.update = function () {
 	//update globs
 	for (var i = 0; i < this.globs.length; i++) {
-		if (this.ship.intersecting(this.globs[i])) {
+		if (this.ship.alive && this.ship.intersecting(this.globs[i])) {
+			this.ship.alive = false;
 			Explosion.debris(this.debris, this.ship.position, this.settings.explosion.ship);
+			break;
 		}
-		
+	
 		this.globs[i].update(this.physics, this.globs);
 	}
 	
@@ -127,7 +129,9 @@ Game.prototype.update = function () {
 	}
 	
 	//update ship
-	this.ship.update(this.physics);
+	if (this.ship.alive) {
+		this.ship.update(this.physics);
+	}
 	
 	//fire gun
 	if (this.gunCooldown == 0) {
@@ -183,7 +187,9 @@ Game.prototype.render = function () {
 		this.bullets[i].render(this.graphics);
 	}
 	
-	this.ship.render(this.graphics);
+	if (this.ship.alive) {
+		this.ship.render(this.graphics);
+	}
 }
 
 /*
