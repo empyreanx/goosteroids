@@ -27,6 +27,8 @@ function Ship(position, settings) {
 	this.accelerating = 0;				//equal to 1 if the ship is accelerating, 0 otherwise
 	this.turning = 0;					//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
 	this.alive = true;					//true if ship is alive
+	this.fireGun = false;				//true if user is attempting to fire the ship's laser cannon
+	this.gunCooldown = 0;				//ticks remaining until gun can fire again
 }
 
 /*

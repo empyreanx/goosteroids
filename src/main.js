@@ -10,7 +10,7 @@ var settings = {
 	lives: 3,
 	globsPerStage: 13,
 	pointsPerGlob: 10,
-	secondsUntilRespawn: 3,
+	respawnTime: 3,
 	gunCooldown: 6,
 	
 	ship: {
@@ -79,6 +79,7 @@ var stage = 1;
 
 Events.on('stageOver', function () {
 	this.stopLoop();
+	this.reset();
 	alert('stage over');
 	this.setupStage(++stage);
 	this.startLoop();

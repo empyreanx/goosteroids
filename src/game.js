@@ -23,8 +23,7 @@ function Game(canvas, settings) {
 	this.settings = settings;
 	
 	this.dt = 1 / settings.fps;
-	this.fireGun = false;			//true if user is attempting to fire the ship's laser cannon
-	this.gunCooldown = 0;			//ticks remaining until gun can fire again
+
 	this.lives = settings.lives;	//number of lives remaining
 	this.score = 0;					//total accumulated points
 	
@@ -32,13 +31,17 @@ function Game(canvas, settings) {
 	this.graphics = new Graphics(canvas);
 	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
 	this.greyGoo = new GreyGoo(canvas.width, canvas.height, settings.greyGoo);
-	this.ship = new Ship(new Vector(canvas.width / 2, canvas.height / 2), settings.ship);
 	
+	this.reset();
+	
+	this.setupEvents();
+}
+
+Game.prototype.reset = function () {
+	this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
 	this.globs = [];
 	this.bullets = [];
 	this.debris = [];
-	
-	this.setupEvents();
 }
 
 /*
@@ -47,38 +50,46 @@ function Game(canvas, settings) {
 Game.prototype.setupEvents = function() {
 	//accelerate
 	this.keyboard.keyUp(Keyboard.keys.up, this, function() {
-		this.ship.accelerating = 0;
+		if (this.ship)
+			this.ship.accelerating = 0;
 	});
 	
 	this.keyboard.keyDown(Keyboard.keys.up, this, function() {
-		this.ship.accelerating = 1;
+		if (this.ship)
+			this.ship.accelerating = 1;
 	});
 	
 	//rotate left
 	this.keyboard.keyUp(Keyboard.keys.left, this, function() {
-		this.ship.turning = 0;
+		if (this.ship)
+			this.ship.turning = 0;
 	});
 	
 	this.keyboard.keyDown(Keyboard.keys.left, this, function() {
-		this.ship.turning = -1;
+		if (this.ship)
+			this.ship.turning = -1;
 	});
 	
 	//rotate right
 	this.keyboard.keyUp(Keyboard.keys.right, this, function() {
-		this.ship.turning = 0;
+		if (this.ship)
+			this.ship.turning = 0;
 	});
 	
 	this.keyboard.keyDown(Keyboard.keys.right, this, function() {
-		this.ship.turning = 1;
+		if (this.ship)
+			this.ship.turning = 1;
 	});
 	
 	//fire
 	this.keyboard.keyDown(Keyboard.keys.spacebar, this, function() {
-		this.fireGun = true;
+		if (this.ship)
+			this.ship.fireGun = true;
 	});
 	
 	this.keyboard.keyUp(Keyboard.keys.spacebar, this, function() {
-		this.fireGun = false;
+		if (this.ship)
+			this.ship.fireGun = false;
 	});
 	
 	Events.on('gameOver', function () {
@@ -91,10 +102,10 @@ Game.prototype.setupEvents = function() {
 }
 
 Game.prototype.respawn = function () {
-	if (this.secondsUntilRespawn == 0) {
+	if (this.respawnTime == 0) {
 		this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
 	} else {
-		this.secondsUntilRespawn--;
+		this.respawnTime--;
 		
 		var that = this;
 		
@@ -124,8 +135,6 @@ Game.prototype.setupStage = function (stage) {
 		var y = random(0, this.canvas.height);
 		this.globs.push(new Glob(new Vector(x, y), new Vector(0, 0), this.settings.glob));
 	}
-	
-	this.keyboard.enableEvents();
 }
 
 /*
@@ -134,16 +143,16 @@ Game.prototype.setupStage = function (stage) {
 Game.prototype.update = function () {
 	//update globs
 	for (var i = 0; i < this.globs.length; i++) {
-		if (this.ship.alive && this.ship.intersecting(this.globs[i])) {
-			this.ship.alive = false;
-			
+		if (this.ship && this.ship.intersecting(this.globs[i])) {
 			Explosion.debris(this.debris, this.ship.position, this.settings.explosion.ship);
+			
+			this.ship = null;
 			
 			if (this.lives == 0) {
 				Events.trigger('gameOver', this);
 			} else {
 				this.lives--;
-				this.secondsUntilRespawn = this.settings.secondsUntilRespawn;
+				this.respawnTime = this.settings.respawnTime;
 				Events.trigger('respawn', this);
 			}
 			
@@ -163,19 +172,17 @@ Game.prototype.update = function () {
 	}
 	
 	//update ship
-	if (this.ship.alive) {
+	if (this.ship) {
 		this.ship.update(this.physics);
 		
-		if (this.gunCooldown == 0) {
-			if (this.fireGun) {
+		if (this.ship.gunCooldown == 0) {
+			if (this.ship.fireGun) {
 				this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
-				this.gunCooldown = this.settings.gunCooldown;
+				this.ship.gunCooldown = this.settings.gunCooldown;
 			}
 		} else {
-			this.gunCooldown--;
+			this.ship.gunCooldown--;
 		}
-	} else {
-		this.gunCooldown = 0;
 	}
 	
 	//update bullets
@@ -227,7 +234,7 @@ Game.prototype.render = function () {
 		this.bullets[i].render(this.graphics);
 	}
 	
-	if (this.ship.alive) {
+	if (this.ship) {
 		this.ship.render(this.graphics);
 	}
 }
@@ -252,6 +259,7 @@ Game.prototype.loop = function () {
  * Starts game loop
  */
 Game.prototype.startLoop = function () {
+	this.keyboard.enableEvents();
 	this.loopId = setInterval((function(self) { return function() { self.loop(); }})(this), this.dt * 1000);
 }
 
@@ -260,6 +268,7 @@ Game.prototype.startLoop = function () {
  */
 Game.prototype.stopLoop = function () {
 	clearInterval(this.loopId);
+	this.keyboard.enableEvents();
 }
 
 module.exports = Game;
