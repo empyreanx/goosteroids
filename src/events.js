@@ -14,8 +14,13 @@ Events.on = function(name, handler) {
 }
 
 Events.trigger = function (name, ctx) {
-	if (Events.handlers[name])
+	if (Events.handlers[name]) {
+		if (ctx == undefined) {
+			ctx = null;
+		}
+		
 		Events.handlers[name].call(ctx);
+	}
 }
 
 module.exports = Events;

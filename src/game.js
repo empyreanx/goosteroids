@@ -86,20 +86,20 @@ Game.prototype.setupEvents = function() {
 	});
 	
 	Events.on('respawn', function () {
-		this.respawn(3);
+		this.respawn();
 	});
 }
 
-Game.prototype.respawn = function (count) {
-	if (count == 0) {
-		this.ship.position = new Vector(this.canvas.width / 2, this.canvas.height / 2);
-		this.ship.orientation = -Math.PI / 2;
-		this.ship.alive = true;
+Game.prototype.respawn = function () {
+	if (this.secondsUntilRespawn == 0) {
+		this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
 	} else {
+		this.secondsUntilRespawn--;
+		
 		var that = this;
 		
 		setTimeout(function () {
-			that.respawn(--count);
+			that.respawn();
 		}, 1000);
 	}
 }
@@ -117,9 +117,9 @@ Game.prototype.resizeCanvas = function (width, height) {
  * Setup stage
  */
 Game.prototype.setupStage = function (stage) {
-	this.ship.position = new Vector(this.canvas.width / 2, this.canvas.height / 2);
+	this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
 
-	for (var i = 0; i < 15; i++) {
+	for (var i = 0; i < stage * this.settings.globsPerStage; i++) {
 		var x = random(0, this.canvas.width);
 		var y = random(0, this.canvas.height);
 		this.globs.push(new Glob(new Vector(x, y), new Vector(0, 0), this.settings.glob));
@@ -143,6 +143,7 @@ Game.prototype.update = function () {
 				Events.trigger('gameOver', this);
 			} else {
 				this.lives--;
+				this.secondsUntilRespawn = this.settings.secondsUntilRespawn;
 				Events.trigger('respawn', this);
 			}
 			
@@ -164,16 +165,17 @@ Game.prototype.update = function () {
 	//update ship
 	if (this.ship.alive) {
 		this.ship.update(this.physics);
-	}
-	
-	//fire gun
-	if (this.gunCooldown == 0) {
-		if (this.fireGun) {
-			this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
-			this.gunCooldown = this.settings.gunCooldown;
+		
+		if (this.gunCooldown == 0) {
+			if (this.fireGun) {
+				this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
+				this.gunCooldown = this.settings.gunCooldown;
+			}
+		} else {
+			this.gunCooldown--;
 		}
 	} else {
-		this.gunCooldown--;
+		this.gunCooldown = 0;
 	}
 	
 	//update bullets
@@ -202,6 +204,10 @@ Game.prototype.update = function () {
 				this.bullets[i].update(this.physics);
 			}
 		}
+	}
+	
+	if (this.globs.length == 0) {
+		Events.trigger('stageOver', this);
 	}
 }
 

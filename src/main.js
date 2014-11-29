@@ -1,13 +1,16 @@
 var $ = require('jquery');
 
 var Game = require('./game.js');
+var Events = require('./events.js');
 
 var templates = { game: require('../tpl/game.hbs') };
 
 var settings = { 
 	fps: 30,
 	lives: 3,
+	globsPerStage: 13,
 	pointsPerGlob: 10,
+	secondsUntilRespawn: 3,
 	gunCooldown: 6,
 	
 	ship: {
@@ -72,12 +75,21 @@ var settings = {
 	}
 };
 
+var stage = 1;
+
+Events.on('stageOver', function () {
+	this.stopLoop();
+	alert('stage over');
+	this.setupStage(++stage);
+	this.startLoop();
+});
+
 $(function() {
 	$('body').html(templates.game);
 	
 	var canvas = $('canvas').get(0);
 	var game = new Game(canvas, settings);
 	
-	game.setupStage();
+	game.setupStage(stage);
 	game.startLoop();
 });
