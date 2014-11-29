@@ -14,7 +14,14 @@ function Ship(position, settings) {
 	
 	this.settings = settings;
 	
+	//graphical model (used to render the ship)
 	this.model = isoscelesTriangle(settings.base, settings.height);;
+	
+	//boundary model (used in collision detection)
+	this.boundaryModel = [];
+	this.boundaryModel.push(this.model[0].add(new Vector(-this.settings.borderWidth, 0)));
+	this.boundaryModel.push(this.model[1].add(new Vector(0, 2 * this.settings.borderWidth)));
+	this.boundaryModel.push(this.model[2].add(new Vector(this.settings.borderWidth, 0)));
 	
 	this.orientation = -Math.PI / 2;									//note the value is negative because we are working in screen coordinates
 	this.accelerating = 0;												//equal to 1 if the ship is accelerating, 0 otherwise
@@ -26,33 +33,6 @@ function Ship(position, settings) {
  */
 Ship.prototype = Object.create(Body.prototype);
 Ship.prototype.constructor = Ship;
-
-/*
- * Returns a vector pointing to the front of the ship
- */
-Ship.prototype.getFront = function () {
-	var front = this.model[1];
-	front = new PolarVector(front.angle() + this.orientation - Math.PI / 2, front.norm() + 2 * this.settings.borderWidth);
-	front = front.add(this.position);
-	return front;
-}
-
-/*
- * Generate engine flames
- */
-Ship.prototype.getEngineFlames = function(flameStep, magnitude) {
-	var start = this.model[0];
-	
-	var flames = [ start ];
-	
-	for (var dist = flameStep; dist < this.settings.base; dist += flameStep) {
-		flames.push(new Vector(start.x + dist, start.y - random(0, magnitude) - 2));
-	}
-	
-	flames.push(this.model[this.model.length - 1]);
-	
-	return flames;
-}
 
 /*
  * Updates the state of the ship by one tick
@@ -82,10 +62,37 @@ Ship.prototype.render = function (graphics) {
 /*
  * Returns true if the ship is colliding with the glob, false ofherwise.
  */
-Ship.prototype.collidingWith = function (glob) {
-	//write glob position in ship's coordinate frame
-	var position = new PolarVector(glob.position.angle() - this.orientation + Math.PI / 2, glob.position.sub(this.position).norm());
-	return circleIntersectsTriangle(position, glob.settings.killRadius, this.model[0], this.model[1], this.model[2]);
+Ship.prototype.intersecting = function (glob) {
+	var position = new PolarVector(glob.position.angle() - this.orientation + Math.PI / 2, glob.position.sub(this.position).norm()); //write glob position in ship's coordinate frame
+	return circleIntersectsTriangle(position, glob.settings.killRadius, this.boundaryModel[0], this.boundaryModel[1], this.boundaryModel[2]);
+}
+
+
+/*
+ * Returns a vector pointing to the front of the ship
+ */
+Ship.prototype.getFront = function () {
+	var front = this.model[1];
+	front = new PolarVector(front.angle() + this.orientation - Math.PI / 2, front.norm() + 2 * this.settings.borderWidth);
+	front = front.add(this.position);
+	return front;
+}
+
+/*
+ * Generate engine flames
+ */
+Ship.prototype.getEngineFlames = function(flameStep, magnitude) {
+	var start = this.model[0];
+	
+	var flames = [ start ];
+	
+	for (var dist = flameStep; dist < this.settings.base; dist += flameStep) {
+		flames.push(new Vector(start.x + dist, start.y - random(0, magnitude) - 2));
+	}
+	
+	flames.push(this.model[this.model.length - 1]);
+	
+	return flames;
 }
 
 /*

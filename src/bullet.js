@@ -17,7 +17,7 @@ function Bullet(position, angle, settings) {
 Bullet.prototype = Object.create(Particle.prototype);
 Bullet.prototype.constructor = Particle.prototype;
 
-Bullet.prototype.collidingWith = function (glob) {
+Bullet.prototype.intersecting = function (glob) {
 	return (this.position.distance(glob.position) < this.settings.killRadius);
 }
 
