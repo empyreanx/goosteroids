@@ -17,7 +17,7 @@ function Ship(position, settings) {
 	//graphical model (used to render the ship)
 	this.model = isoscelesTriangle(settings.base, settings.height);;
 	
-	//boundary model (used in collision detection)
+	//boundary model to account for border width (used in collision detection)
 	this.boundaryModel = [];
 	this.boundaryModel.push(this.model[0].add(new Vector(-this.settings.borderWidth, 0)));
 	this.boundaryModel.push(this.model[1].add(new Vector(0, 2 * this.settings.borderWidth)));
@@ -117,6 +117,9 @@ function isoscelesTriangle(base, height) {
 
 /*
  * Test if p1 and p2 are on the same side of the line l(x) = v1 + x(v2 - v1)
+ * 
+ * The main idea behind this function is that in 2D cross(a, b) = |a||b|sin(theta),
+ * where theta is the angle between 'a' and 'b'.
  */
 function sameSide(p1, p2, v1, v2) {
 	var cp1 = p1.sub(v1).cross(v2.sub(v1));
@@ -143,7 +146,10 @@ function orthogonalProjection(p, v1, v2) {
 }
 
 /*
- * Tests if the circle (center, radius) is in the triangle [v1, v2, v3]
+ * Tests if the circle (center, radius) is in the triangle [v1, v2, v3].
+ * The main idea behind this function is to examing three exhaustive cases to determine
+ * whether a cicle intersects a given triangle. It checks two trivial cases, and
+ * then checks to see whether the circle is close enough to an edge to intersect it.
  */
 function circleIntersectsTriangle(center, radius, v1, v2, v3) {
 	if (inTriangle(center, v1, v2, v3))
