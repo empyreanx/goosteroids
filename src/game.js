@@ -98,22 +98,8 @@ Game.prototype.setupEvents = function() {
 	});
 	
 	Events.on('respawn', function () {
-		this.respawn();
-	});
-}
-
-Game.prototype.respawn = function () {
-	if (this.respawnTime == 0) {
 		this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
-	} else {
-		this.respawnTime--;
-		
-		var that = this;
-		
-		setTimeout(function () {
-			that.respawn();
-		}, 1000);
-	}
+	});
 }
 
 /*
@@ -160,8 +146,20 @@ Game.prototype.update = function () {
 				}, 1000);
 			} else {
 				this.lives--;
-				this.respawnTime = this.settings.respawnTime;		
-				Events.trigger('respawn', this);
+				
+				this.respawnTime = this.settings.respawnTime;
+				
+				var that = this;
+				
+				//respawn after a time
+				var interval = setInterval(function () {
+					if (that.respawnTime == 0) {
+						clearInterval(interval);
+						Events.trigger('respawn', that);
+					} else {
+						that.respawnTime--;
+					}
+				}, 1000);
 			}
 			
 			break;
