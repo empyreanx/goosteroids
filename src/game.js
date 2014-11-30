@@ -138,20 +138,20 @@ Game.prototype.update = function () {
 			this.ship = null;
 			
 			if (this.lives == 0) {
+				//delay, then trigger game over
 				var that = this;
 				
-				//delay, then trigger game over
 				setTimeout(function () {
 					Events.trigger('gameOver', that);
 				}, 1000);
 			} else {
 				this.lives--;
 				
+				//respawn after a time
 				this.respawnTime = this.settings.respawnTime;
 				
 				var that = this;
 				
-				//respawn after a time
 				var interval = setInterval(function () {
 					if (that.respawnTime == 0) {
 						clearInterval(interval);
@@ -171,7 +171,7 @@ Game.prototype.update = function () {
 	//update debris from explosions
 	for (var i = 0; i < this.debris.length; i++) {
 		if (this.debris[i].lifetime == 0) {
-			remove(this.debris, i);
+			this.debris.remove(i);
 		} else {
 			this.debris[i].update(this.physics);
 		}
@@ -194,21 +194,21 @@ Game.prototype.update = function () {
 	//update bullets
 	for (var i = 0; i < this.bullets.length; i++) {
 		if (this.bullets[i].lifetime == 0) {
-			remove(this.bullets, i);
+			this.bullets.remove(i);
 		} else {
 			this.bullets[i].update(this.physics);
 			
+			//detect and handle hit
 			var hit = false;
 			
-			//detect and handle hit
 			for (var j = 0; !hit && j < this.globs.length; j++) {
 				if (this.bullets[i].intersecting(this.globs[j])) {
 					hit = true;
-					this.score += this.settings.pointsPerGlob;
 					Explosion.debris(this.debris, this.globs[j].position, this.settings.explosion.glob);
 					Explosion.blast(this.globs, this.globs[j].position, this.settings.explosion.glob);
-					remove(this.bullets, i);
-					remove(this.globs, j);
+					this.bullets.remove(i);
+					this.globs.remove(j);
+					this.score += this.settings.pointsPerGlob;
 				}
 			}
 			

@@ -1,5 +1,9 @@
 'use strict';
 
+Array.prototype.remove = function (index) {
+	return this.splice(index, 1);
+}
+
 exports.clamp = function (c, min, max) {
 	if (c < min)
 		return min;
