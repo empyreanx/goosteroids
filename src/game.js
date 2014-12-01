@@ -38,6 +38,10 @@ function Game(canvas, settings) {
 	this.setupEvents();
 }
 
+Game.prototype.ticks = function (ms) {
+	return Math.floor(ms * this.settings.fps / 1000);
+}
+
 Game.prototype.reset = function () {
 	this.ship = new Ship(this.getCanvasCenter(), this.settings.ship);
 	this.globs = [];
@@ -153,7 +157,7 @@ Game.prototype.update = function () {
 	//update globs
 	for (var i = 0; i < this.globs.length; i++) {
 		if (this.ship && this.ship.intersecting(this.globs[i])) {
-			Explosion.debris(this.debris, this.ship.position, this.settings.explosion.ship);
+			Explosion.debris(this.debris, this.ship.position, this.ticks(this.settings.explosion.ship.lifetime), this.settings.explosion.ship);
 			
 			this.ship = null;
 			
@@ -203,8 +207,8 @@ Game.prototype.update = function () {
 		
 		if (this.ship.gunCooldown == 0) {
 			if (this.ship.fireGun) {
-				this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
-				this.ship.gunCooldown = this.settings.ship.gunCooldown;
+				this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.ticks(this.settings.bullet.lifetime), this.settings.bullet));
+				this.ship.gunCooldown = this.ticks(this.settings.ship.gunCooldown);
 			}
 		} else {
 			this.ship.gunCooldown--;
@@ -224,7 +228,7 @@ Game.prototype.update = function () {
 			for (var j = 0; !hit && j < this.globs.length; j++) {
 				if (this.bullets[i].intersecting(this.globs[j])) {
 					hit = true;
-					Explosion.debris(this.debris, this.globs[j].position, this.settings.explosion.glob);
+					Explosion.debris(this.debris, this.globs[j].position, this.ticks(this.settings.explosion.glob.lifetime), this.settings.explosion.glob);
 					Explosion.blast(this.globs, this.globs[j].position, this.settings.explosion.glob);
 					this.bullets.remove(i);
 					this.globs.remove(j);

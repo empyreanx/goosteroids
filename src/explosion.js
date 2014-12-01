@@ -5,10 +5,10 @@ var PolarVector = require('./polarvector.js');
 
 var Explosion = { };
 
-Explosion.debris = function (particles, center, settings) {
+Explosion.debris = function (particles, center, lifetime, settings) {
 	for (var i = 0; i < settings.numParticles; i++) {
 		var velocity = new PolarVector(Math.random() * 2 * Math.PI, Math.random() * settings.magnitude);
-		particles.push(new Particle(center, velocity, 1.0, 2.0, settings.color, -1, 0.8, settings.lifetime));
+		particles.push(new Particle(center, velocity, 1.0, 2.0, settings.color, -1, 0.8, lifetime));
 	}
 }
 

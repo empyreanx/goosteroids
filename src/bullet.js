@@ -6,8 +6,8 @@ var PolarVector = require('./polarvector.js');
 /*
  * Encapsulates a bullet fire from the ship
  */
-function Bullet(position, angle, settings) {
-	Particle.call(this, position, new PolarVector(angle, settings.speed), 1.0, settings.radius, settings.color, -1, 1, settings.lifetime);
+function Bullet(position, angle, lifetime, settings) {
+	Particle.call(this, position, new PolarVector(angle, settings.speed), 1.0, settings.radius, settings.color, -1, 1, lifetime);
 	this.settings = settings;
 }
 

@@ -24,7 +24,7 @@ var settings = {
 		base: 15,
 		height: 25,
 		respawnTime: 3,
-		gunCooldown: 6,
+		gunCooldown: 200,
 		
 		flames: {
 			step: 2,
@@ -66,7 +66,7 @@ var settings = {
 		speed: 350,
 		radius: 2,
 		killRadius: 12.5,
-		lifetime: 25,
+		lifetime: 830,
 		color: 'red' 
 	},
 	
@@ -75,7 +75,7 @@ var settings = {
 			numParticles: 15,
 			magnitude: 250,
 			color: '#b0b0b0',
-			lifetime: 20,
+			lifetime: 660,
 			blastRadius: 30,
 			blastMagnitude: 700
 		},
@@ -84,7 +84,7 @@ var settings = {
 			numParticles: 30,
 			magnitude: 300,
 			color: 'black',
-			lifetime: 30
+			lifetime: 1000
 		}
 	}
 };
