@@ -29,6 +29,7 @@ function Ship(position, settings) {
 	this.alive = true;					//true if ship is alive
 	this.fireGun = false;				//true if user is attempting to fire the ship's laser cannon
 	this.gunCooldown = 0;				//ticks remaining until gun can fire again
+	this.thrust = this.settings.thrust; //thrust applied to the ship if the engine is on
 }
 
 /*
@@ -38,13 +39,30 @@ Ship.prototype = Object.create(Body.prototype);
 Ship.prototype.constructor = Ship;
 
 /*
+ * Turbo on
+ */
+Ship.prototype.turboOn = function () {
+	this.thrust = this.settings.turbo.thrust;
+	this.maxSpeed = this.settings.turbo.maxSpeed;
+}
+ 
+/*
+ * Turbo off
+ */
+Ship.prototype.turboOff = function () {
+	this.thrust = this.settings.thrust;
+	this.maxSpeed = this.settings.maxSpeed;
+}
+
+
+/*
  * Updates the state of the ship by one tick
  */
 Ship.prototype.update = function (physics) {
 	//update physics
 	this.orientation += this.turning * this.settings.turnRate * physics.dt;
 	
-	this.applyForce(new PolarVector(this.orientation, 1).scale(this.accelerating * this.settings.thrust));
+	this.applyForce(new PolarVector(this.orientation, 1).scale(this.accelerating * this.thrust));
 	
 	physics.update(this);
 	
@@ -58,7 +76,7 @@ Ship.prototype.render = function (graphics) {
 	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.borderWidth, this.settings.borderColor, this.settings.interiorColor, true);
 	
 	if (this.accelerating) {
-		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.getEngineFlames(this.settings.flameStep, this.settings.flameMagnitude), this.settings.flameThickness, this.settings.flameColor);
+		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.getEngineFlames(this.settings.flames.step, this.settings.flames.magnitude), this.settings.flames.thickness, this.settings.flames.color);
 	}
 }
 

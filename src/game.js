@@ -93,6 +93,17 @@ Game.prototype.setupEvents = function() {
 			this.ship.fireGun = false;
 	});
 	
+	//turbo
+	this.keyboard.keyDown(Keyboard.keys.shift, this, function() {
+		if (this.ship)
+			this.ship.turboOn();
+	});
+	
+	this.keyboard.keyUp(Keyboard.keys.shift, this, function() {
+		if (this.ship)
+			this.ship.turboOff();
+	});	
+	
 	Events.on('gameOver', function () {
 		alert('gameOver: ' + this.score);
 	});
