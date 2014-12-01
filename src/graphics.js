@@ -58,4 +58,21 @@ Graphics.prototype.drawPolyLine = function (position, orientation, vertices, bor
 	this.ctx.restore();
 }
 
+Graphics.prototype.drawText = function (text, position, size, font, color, weight, align) {
+	this.ctx.save();
+	
+	var weight = weight || 'bold';
+	
+	this.ctx.font = weight + ' ' + size + 'px ' + font;
+	this.ctx.fillStyle = color;
+	
+	if (align) {
+		this.ctx.textAlign = align;
+	}
+	
+	this.ctx.fillText(text, position.x, position.y);
+	
+	this.ctx.restore();
+}
+
 module.exports = Graphics;

@@ -10,8 +10,8 @@ var settings = {
 	lives: 3,
 	globsPerStage: 13,
 	pointsPerGlob: 10,
-	respawnTime: 3,
-	gunCooldown: 6,
+	textColor: 'black',
+	textFont: 'Arial',
 	
 	ship: {
 		damping: 0.5,
@@ -26,7 +26,9 @@ var settings = {
 		flameStep: 2,
 		flameMagnitude: 6,
 		flameColor: 'blue',
-		flameThickness: 2
+		flameThickness: 2,
+		respawnTime: 3,
+		gunCooldown: 6,
 	},
 	
 	glob: {

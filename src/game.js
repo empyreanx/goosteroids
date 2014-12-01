@@ -39,7 +39,7 @@ function Game(canvas, settings) {
 }
 
 Game.prototype.reset = function () {
-	this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
+	this.ship = new Ship(this.getCanvasCenter(), this.settings.ship);
 	this.globs = [];
 	this.bullets = [];
 	this.debris = [];
@@ -98,7 +98,7 @@ Game.prototype.setupEvents = function() {
 	});
 	
 	Events.on('respawn', function () {
-		this.ship = new Ship(new Vector(this.canvas.width / 2, this.canvas.height / 2), this.settings.ship);
+		this.ship = new Ship(this.getCanvasCenter(), this.settings.ship);
 	});
 }
 
@@ -112,9 +112,18 @@ Game.prototype.resizeCanvas = function (width, height) {
 }
 
 /*
+ * Returns the center of the canvas.
+ */
+Game.prototype.getCanvasCenter = function () {
+	return new Vector(this.canvas.width / 2, this.canvas.height / 2);
+}
+
+/*
  * Setup stage
  */
 Game.prototype.setupStage = function (stage) {
+	this.stage = stage;
+	
 	this.reset();
 
 	for (var i = 0; i < stage * this.settings.globsPerStage; i++) {
@@ -148,16 +157,16 @@ Game.prototype.update = function () {
 				this.lives--;
 				
 				//respawn after a time
-				this.respawnTime = this.settings.respawnTime;
+				this.respawnTime = this.settings.ship.respawnTime;
 				
 				var that = this;
 				
 				var interval = setInterval(function () {
+					that.respawnTime--
+					
 					if (that.respawnTime == 0) {
 						clearInterval(interval);
 						Events.trigger('respawn', that);
-					} else {
-						that.respawnTime--;
 					}
 				}, 1000);
 			}
@@ -184,7 +193,7 @@ Game.prototype.update = function () {
 		if (this.ship.gunCooldown == 0) {
 			if (this.ship.fireGun) {
 				this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.settings.bullet));
-				this.ship.gunCooldown = this.settings.gunCooldown;
+				this.ship.gunCooldown = this.settings.ship.gunCooldown;
 			}
 		} else {
 			this.ship.gunCooldown--;
@@ -252,10 +261,20 @@ Game.prototype.render = function () {
 }
 
 /*
- * Render heads up display (health, score, lives remaining etc...)
+ * Render heads up display (stage, score, lives remaining etc...)
  */
 Game.prototype.renderHUD = function () {
+	this.graphics.drawText(this.score, new Vector(this.canvas.width - 80, 60), 24, this.settings.textFont, this.settings.textColor);
 	
+	this.graphics.drawText("STAGE", new Vector(20, 50), 10, this.settings.textFont, this.settings.textColor);
+	this.graphics.drawText(this.stage, new Vector(60, 50), 10, this.settings.textFont, this.settings.textColor);
+	
+	this.graphics.drawText("LIVES", new Vector(20, 70), 10, this.settings.textFont, this.settings.textColor);
+	this.graphics.drawText(this.lives, new Vector(60, 70), 10, this.settings.textFont, this.settings.textColor);
+	
+	if (this.respawnTime > 0) {
+		this.graphics.drawText('RESPAWNING IN ' + this.respawnTime, this.getCanvasCenter(), 18, this.settings.textFont, this.settings.textColor, 'bold', 'center');
+	}
 }
 
 /*
