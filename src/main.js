@@ -39,7 +39,7 @@ var settings = {
 			thrust: 2500,
 			maxSpeed: 800,
 			recharge: 2,
-			rechargeCooldown: 60
+			rechargeCooldown: 2000
 		}
 	},
 	

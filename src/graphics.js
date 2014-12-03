@@ -75,4 +75,20 @@ Graphics.prototype.drawText = function (text, position, size, font, color, weigh
 	this.ctx.restore();
 }
 
+Graphics.prototype.drawRectangle = function (position, width, height, borderWidth, interiorColor, borderColor) {
+	this.ctx.beginPath();
+	this.ctx.rect(position.x, position.y, width, height);
+	
+	if (interiorColor) {
+		this.ctx.fillStyle = interiorColor;
+		this.ctx.fill();
+	}
+	
+	if (borderWidth > 0) {
+		this.ctx.lineWidth = borderWidth;
+		this.ctx.strokeStyle = borderColor;
+		this.ctx.stroke();
+	}
+}
+
 module.exports = Graphics;

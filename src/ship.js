@@ -4,6 +4,7 @@ var Body = require('./body.js');
 var Vector = require('./vector.js');
 var PolarVector = require('./polarvector.js');
 
+var clamp = require('./utilities.js').clamp;
 var random = require('./utilities.js').random;
 
 /*
@@ -19,17 +20,20 @@ function Ship(position, settings) {
 	
 	//boundary model to account for border width (used in collision detection)
 	this.boundaryModel = [];
-	this.boundaryModel.push(this.model[0].add(new Vector(-this.settings.borderWidth, 0)));
-	this.boundaryModel.push(this.model[1].add(new Vector(0, 2 * this.settings.borderWidth)));
-	this.boundaryModel.push(this.model[2].add(new Vector(this.settings.borderWidth, 0)));
+	this.boundaryModel.push(this.model[0].add(new Vector(-settings.borderWidth, 0)));
+	this.boundaryModel.push(this.model[1].add(new Vector(0, 2 * settings.borderWidth)));
+	this.boundaryModel.push(this.model[2].add(new Vector(settings.borderWidth, 0)));
 	
-	this.orientation = -Math.PI / 2;	//note the value is negative because we are working in screen coordinates
-	this.accelerating = 0;				//equal to 1 if the ship is accelerating, 0 otherwise
-	this.turning = 0;					//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
-	this.alive = true;					//true if ship is alive
-	this.fireGun = false;				//true if user is attempting to fire the ship's laser cannon
-	this.gunCooldown = 0;				//ticks remaining until gun can fire again
-	this.thrust = this.settings.thrust; //thrust applied to the ship if the engine is on
+	this.orientation = -Math.PI / 2;			//note the value is negative because we are working in screen coordinates
+	this.accelerating = 0;						//equal to 1 if the ship is accelerating, 0 otherwise
+	this.turning = 0;							//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
+	this.alive = true;							//true if ship is alive
+	this.fireGun = false;						//true if user is attempting to fire the ship's laser cannon
+	this.gunCooldown = 0;						//ticks remaining until gun can fire again
+	this.thrust = settings.thrust; 				//thrust applied to the ship if the engine is on
+	this.turbo = false;							//true if turbo is on
+	this.turboFuel = this.settings.turbo.fuel; 	//turbo fuel remaining
+	this.rechargeCooldown = 0;					//turbo recharge cooldown
 }
 
 /*
@@ -39,26 +43,29 @@ Ship.prototype = Object.create(Body.prototype);
 Ship.prototype.constructor = Ship;
 
 /*
- * Turbo on
- */
-Ship.prototype.turboOn = function () {
-	this.thrust = this.settings.turbo.thrust;
-	this.maxSpeed = this.settings.turbo.maxSpeed;
-}
- 
-/*
- * Turbo off
- */
-Ship.prototype.turboOff = function () {
-	this.thrust = this.settings.thrust;
-	this.maxSpeed = this.settings.maxSpeed;
-}
-
-
-/*
  * Updates the state of the ship by one tick
  */
 Ship.prototype.update = function (physics) {
+	if (this.turbo && this.turboFuel > 0) {
+		this.turboFuel = clamp(this.turboFuel - this.settings.turbo.consumption, 0, this.settings.turbo.fuel);
+		
+		console.log(this.turboFuel);
+		
+		this.thrust = this.settings.turbo.thrust;
+		this.maxSpeed = this.settings.turbo.maxSpeed;
+	} else {
+		this.thrust = this.settings.thrust;
+		this.maxSpeed = this.settings.maxSpeed;
+	}
+
+	if (!this.turbo && this.rechargeCooldown > 0) {
+		this.rechargeCooldown--;
+	}
+	
+	if (!this.turbo && this.rechargeCooldown == 0) {
+		this.turboFuel = clamp(this.turboFuel + this.settings.turbo.recharge, 0, this.settings.turbo.fuel);
+	}
+
 	//update physics
 	this.orientation += this.turning * this.settings.turnRate * physics.dt;
 	

@@ -100,12 +100,14 @@ Game.prototype.setupEvents = function() {
 	//turbo
 	this.keyboard.keyDown(Keyboard.keys.shift, this, function() {
 		if (this.ship)
-			this.ship.turboOn();
+			this.ship.turbo = true;
 	});
 	
 	this.keyboard.keyUp(Keyboard.keys.shift, this, function() {
-		if (this.ship)
-			this.ship.turboOff();
+		if (this.ship) {
+			this.ship.turbo = false;
+			this.ship.rechargeCooldown = this.ticks(this.ship.settings.turbo.rechargeCooldown);
+		}
 	});	
 	
 	Events.on('gameOver', function () {
@@ -280,6 +282,14 @@ Game.prototype.render = function () {
  */
 Game.prototype.renderHUD = function () {
 	this.graphics.drawText(this.score, new Vector(this.canvas.width - 80, 60), 24, this.settings.textFont, this.settings.textColor);
+	
+	this.graphics.drawText("TURBO", new Vector(20, 30), 10, this.settings.textFont, this.settings.textColor);
+	
+	this.graphics.drawRectangle(new Vector(63, 21), 102, 10, 2, 'white', 'black');
+	
+	if (this.ship) {
+		this.graphics.drawRectangle(new Vector(64, 22), (this.ship.turboFuel / this.ship.settings.turbo.fuel) * 100, 8, 0, 'blue');
+	}
 	
 	this.graphics.drawText("STAGE", new Vector(20, 50), 10, this.settings.textFont, this.settings.textColor);
 	this.graphics.drawText(this.stage, new Vector(60, 50), 10, this.settings.textFont, this.settings.textColor);
