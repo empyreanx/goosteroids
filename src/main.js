@@ -39,7 +39,12 @@ var settings = {
 			thrust: 2500,
 			maxSpeed: 800,
 			recharge: 2,
-			rechargeCooldown: 2000
+			rechargeCooldown: 2000,
+			
+			flames: {
+				step: 3,
+				magnitude: 17
+			}
 		}
 	},
 	

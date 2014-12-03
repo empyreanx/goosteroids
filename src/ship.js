@@ -83,7 +83,15 @@ Ship.prototype.render = function (graphics) {
 	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.borderWidth, this.settings.borderColor, this.settings.interiorColor, true);
 	
 	if (this.accelerating) {
-		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.getEngineFlames(this.settings.flames.step, this.settings.flames.magnitude), this.settings.flames.thickness, this.settings.flames.color);
+		var flames = [];
+		
+		if (this.turbo && this.turboFuel > 0) {
+			flames = this.getEngineFlames(this.settings.turbo.flames.step, this.settings.turbo.flames.magnitude);
+		} else {
+			flames = this.getEngineFlames(this.settings.flames.step, this.settings.flames.magnitude);
+		}
+		
+		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, flames, this.settings.flames.thickness, this.settings.flames.color);
 	}
 }
 
