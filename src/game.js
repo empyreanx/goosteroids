@@ -43,7 +43,7 @@ Game.prototype.ticks = function (ms) {
 }
 
 Game.prototype.reset = function () {
-	this.ship = new Ship(this.getCanvasCenter(), this.settings.ship);
+	this.ship = new Ship(this.getCanvasCenter(), this.ticks(this.settings.ship.invulnerable), this.settings.ship);
 	this.globs = [];
 	this.bullets = [];
 	this.debris = [];
@@ -115,7 +115,7 @@ Game.prototype.setupEvents = function() {
 	});
 	
 	Events.on('respawn', function () {
-		this.ship = new Ship(this.getCanvasCenter(), this.settings.ship);
+		this.ship = new Ship(this.getCanvasCenter(), this.ticks(this.settings.ship.invulnerable), this.settings.ship);
 	});
 }
 
@@ -158,7 +158,7 @@ Game.prototype.setupStage = function (stage) {
 Game.prototype.update = function () {
 	//update globs
 	for (var i = 0; i < this.globs.length; i++) {
-		if (this.ship && this.ship.intersecting(this.globs[i])) {
+		if (this.ship && this.ship.invulnerable == 0 && this.ship.intersecting(this.globs[i])) {
 			Explosion.debris(this.debris, this.ship.position, this.ticks(this.settings.explosion.ship.lifetime), this.settings.explosion.ship);
 			
 			this.ship = null;

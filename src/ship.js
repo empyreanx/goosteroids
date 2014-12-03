@@ -10,7 +10,7 @@ var random = require('./utilities.js').random;
 /*
  * Encapsulates the ship game object
  */
-function Ship(position, settings) {
+function Ship(position, invulnerable, settings) {
 	Body.call(this, position, new Vector(0, 0), 1.0, settings.maxSpeed, settings.damping);
 	
 	this.settings = settings;
@@ -34,6 +34,7 @@ function Ship(position, settings) {
 	this.turbo = false;							//true if turbo is on
 	this.turboFuel = this.settings.turbo.fuel; 	//turbo fuel remaining
 	this.rechargeCooldown = 0;					//turbo recharge cooldown
+	this.invulnerable = invulnerable;			//ticks until ship becomes vulnerable
 }
 
 /*
@@ -46,11 +47,14 @@ Ship.prototype.constructor = Ship;
  * Updates the state of the ship by one tick
  */
 Ship.prototype.update = function (physics) {
+	//handle invulnerability
+	if (this.invulnerable > 0) {
+		this.invulnerable--;
+	}
+	
+	//handle turbo
 	if (this.turbo && this.turboFuel > 0) {
 		this.turboFuel = clamp(this.turboFuel - this.settings.turbo.consumption, 0, this.settings.turbo.fuel);
-		
-		console.log(this.turboFuel);
-		
 		this.thrust = this.settings.turbo.thrust;
 		this.maxSpeed = this.settings.turbo.maxSpeed;
 	} else {
@@ -80,18 +84,20 @@ Ship.prototype.update = function (physics) {
  * Renders the ship and engine flames
  */ 
 Ship.prototype.render = function (graphics) {
-	graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.borderWidth, this.settings.borderColor, this.settings.interiorColor, true);
-	
-	if (this.accelerating) {
-		var flames = [];
+	if (this.invulnerable == 0 || (this.invulnerable % 2) == 0) {
+		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, this.model, this.settings.borderWidth, this.settings.borderColor, this.settings.interiorColor, true);
 		
-		if (this.turbo && this.turboFuel > 0) {
-			flames = this.getEngineFlames(this.settings.turbo.flames.step, this.settings.turbo.flames.magnitude);
-		} else {
-			flames = this.getEngineFlames(this.settings.flames.step, this.settings.flames.magnitude);
+		if (this.accelerating) {
+			var flames = [];
+			
+			if (this.turbo && this.turboFuel > 0) {
+				flames = this.getEngineFlames(this.settings.turbo.flames.step, this.settings.turbo.flames.magnitude);
+			} else {
+				flames = this.getEngineFlames(this.settings.flames.step, this.settings.flames.magnitude);
+			}
+			
+			graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, flames, this.settings.flames.thickness, this.settings.flames.color);
 		}
-		
-		graphics.drawPolyLine(this.position, this.orientation - Math.PI / 2, flames, this.settings.flames.thickness, this.settings.flames.color);
 	}
 }
 

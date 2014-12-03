@@ -25,6 +25,7 @@ var settings = {
 		height: 25,
 		respawnTime: 3,
 		gunCooldown: 200,
+		invulnerable: 1500,
 		
 		flames: {
 			step: 2,
