@@ -2,6 +2,7 @@ var $ = require('jquery');
 
 var Game = require('./game.js');
 var Events = require('./events.js');
+var Sound = require('./sound.js');
 
 var templates = { game: require('../tpl/game.hbs') };
 
@@ -95,6 +96,33 @@ var settings = {
 	}
 };
 
+var sounds = [
+	{
+		id: "laser",
+		src: "sound/mp3/laser.mp3"
+	},
+	{
+		id: "pop",
+		src: "sound/mp3/pop.mp3"
+	},
+	{
+		id: "explosion",
+		src: "sound/mp3/explosion.mp3"
+	},	
+	{
+		id: "music1",
+		src: "sound/mp3/music1.mp3"
+	},
+	{
+		id: "music2",
+		src: "sound/mp3/music2.mp3"
+	},
+	{
+		id: "music3",
+		src: "sound/mp3/music3.mp3"
+	}
+];
+
 var stage = 1;
 
 Events.on('stageOver', function () {
@@ -105,11 +133,15 @@ Events.on('stageOver', function () {
 });
 
 $(function() {
-	$('body').html(templates.game);
+	Sound.init();
 	
-	var canvas = $('canvas').get(0);
-	var game = new Game(canvas, settings);
+	Sound.load(sounds, function () {
+		$('body').html(templates.game);
 	
-	game.setupStage(stage);
-	game.startLoop();
+		var canvas = $('canvas').get(0);
+		var game = new Game(canvas, settings);
+	
+		game.setupStage(stage);
+		game.startLoop();
+	});
 });

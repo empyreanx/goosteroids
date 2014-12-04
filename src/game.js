@@ -10,7 +10,10 @@ var Keyboard = require('./keyboard.js');
 var Particle = require('./particle.js');
 var Physics = require('./physics.js');
 var Ship = require('./ship.js');
+var Sound = require('./sound.js');
 var Vector = require('./vector.js');
+
+var Sound = require('./sound.js');
 
 var random = require('./utilities').random;
 var remove = require('./utilities').remove;
@@ -159,6 +162,7 @@ Game.prototype.update = function () {
 	//update globs
 	for (var i = 0; i < this.globs.length; i++) {
 		if (this.ship && this.ship.invulnerable == 0 && this.ship.intersecting(this.globs[i])) {
+			Sound.play('explosion');
 			Explosion.debris(this.debris, this.ship.position, this.ticks(this.settings.explosion.ship.lifetime), this.settings.explosion.ship);
 			
 			this.ship = null;
@@ -209,6 +213,7 @@ Game.prototype.update = function () {
 		
 		if (this.ship.gunCooldown == 0) {
 			if (this.ship.fireGun) {
+				Sound.play('laser');
 				this.bullets.push(new Bullet(this.ship.getFront(), this.ship.orientation, this.ticks(this.settings.bullet.lifetime), this.settings.bullet));
 				this.ship.gunCooldown = this.ticks(this.settings.ship.gunCooldown);
 			}
@@ -230,6 +235,7 @@ Game.prototype.update = function () {
 			for (var j = 0; !hit && j < this.globs.length; j++) {
 				if (this.bullets[i].intersecting(this.globs[j])) {
 					hit = true;
+					Sound.play('pop');
 					Explosion.debris(this.debris, this.globs[j].position, this.ticks(this.settings.explosion.glob.lifetime), this.settings.explosion.glob);
 					Explosion.blast(this.globs, this.globs[j].position, this.settings.explosion.glob);
 					this.bullets.remove(i);

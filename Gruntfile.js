@@ -17,7 +17,7 @@ grunt.initConfig({
 			},
 			options: {
 				debug: true,
-				transform: ['hbsfy']
+				transform: ['hbsfy', 'browserify-shim']
 			}
 		},
 		prod: {
@@ -25,7 +25,7 @@ grunt.initConfig({
 				'tmp/app.js': ['src/main.js'],
 			},
 			options: {
-				transform: ['hbsfy']
+				transform: ['hbsfy', 'browserify-shim']
 			}
 		}
 	},
