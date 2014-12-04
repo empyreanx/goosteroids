@@ -113,10 +113,6 @@ Game.prototype.setupEvents = function() {
 		}
 	});	
 	
-	Events.on('gameOver', function () {
-		alert('gameOver: ' + this.score);
-	});
-	
 	Events.on('respawn', function () {
 		this.ship = new Ship(this.getCanvasCenter(), this.ticks(this.settings.ship.invulnerable), this.settings.ship);
 	});

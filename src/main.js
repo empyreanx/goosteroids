@@ -56,9 +56,9 @@ var settings = {
 		damping: 1,
 		cr: 0.9,
 		color: '#b0b0b0',
-		magnitude: 50,
-		dropoff: 0.005,
-		killRadius: 10
+		magnitude: 50,							//gravitational magnitude
+		dropoff: 0.005,							//gravitational dropoff
+		killRadius: 10							//used in detecting ship/glob collisions
 	},
 	
 	greyGoo: {
@@ -72,7 +72,7 @@ var settings = {
 	bullet: {
 		speed: 350,
 		radius: 2,
-		killRadius: 12.5,
+		killRadius: 12.5,						//used in detecting bullet/glob collisions
 		lifetime: 830,
 		color: 'red' 
 	},
@@ -93,33 +93,37 @@ var settings = {
 			color: 'black',
 			lifetime: 1000
 		}
+	},
+	
+	sound: {
+		numTracks: 3
 	}
 };
 
 var sounds = [
 	{
-		id: "laser",
-		src: "sound/mp3/laser.mp3"
+		id: 'laser',
+		src: 'sound/mp3/laser.mp3'
 	},
 	{
-		id: "pop",
-		src: "sound/mp3/pop.mp3"
+		id: 'pop',
+		src: 'sound/mp3/pop.mp3'
 	},
 	{
-		id: "explosion",
-		src: "sound/mp3/explosion.mp3"
+		id: 'explosion',
+		src: 'sound/mp3/explosion.mp3'
 	},	
 	{
-		id: "music1",
-		src: "sound/mp3/music1.mp3"
+		id: 'music1',
+		src: 'sound/mp3/music1.mp3'
 	},
 	{
-		id: "music2",
-		src: "sound/mp3/music2.mp3"
+		id: 'music2',
+		src: 'sound/mp3/music2.mp3'
 	},
 	{
-		id: "music3",
-		src: "sound/mp3/music3.mp3"
+		id: 'music3',
+		src: 'sound/mp3/music3.mp3'
 	}
 ];
 
@@ -132,8 +136,14 @@ Events.on('stageOver', function () {
 	this.startLoop();
 });
 
+Events.on('gameOver', function () {
+	Sound.stopMusic();
+	Sound.stopAll();
+	alert('gameOver: ' + this.score);
+});
+
 $(function() {
-	Sound.init();
+	Sound.init(settings.sound);
 	
 	Sound.load(sounds, function () {
 		$('body').html(templates.game);
@@ -143,5 +153,6 @@ $(function() {
 	
 		game.setupStage(stage);
 		game.startLoop();
+		Sound.startMusic();
 	});
 });

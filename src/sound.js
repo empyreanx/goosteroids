@@ -2,12 +2,19 @@
 
 var createjs = require('createjs');
 
+var randomInteger = require('./utilities.js').randomInteger;
+
 var Sound = { 
+	settings: {},
 	enabled: true,
-	muted: false
+	muted: false,
+	musicOn: false,
+	music: null
 };
 
-Sound.init = function () {
+Sound.init = function (settings) {
+	Sound.settings = settings;
+	
 	if (!createjs.Sound.isReady()) {
 		createjs.Sound.registerPlugins([ createjs.WebAudioPlugin, createjs.HTMLAudioPlugin ]);
 		
@@ -48,7 +55,32 @@ Sound.play = function (id, volume, loop, onComplete) {
 		if (onComplete) {
 			sound.addEventListener("complete", onComplete);
 		}
+		
+		return sound;
 	}
+	
+	return null;
+}
+
+Sound.playMusic = function (onComplete) {
+	Sound.music = Sound.play('music' + randomInteger(1, Sound.settings.numTracks), 1, false, onComplete);
+}
+
+Sound.startMusic = function () {
+	Sound.musicOn = true;
+	
+	var onComplete = function () {
+		if (Sound.musicOn) {
+			Sound.playMusic(onComplete);
+		}
+	};
+	
+	Sound.playMusic(onComplete);
+}
+
+Sound.stopMusic = function () {
+	Sound.musicOn = false;
+	Sound.music.stop();
 }
 
 Sound.mute = function () {
@@ -61,6 +93,9 @@ Sound.unmute = function () {
 	createjs.Sound.setMute(true);
 }
 
-
+Sound.stopAll = function () {
+	if (Sound.enabled)
+		createjs.Sound.stop();
+}
 
 module.exports = Sound;
