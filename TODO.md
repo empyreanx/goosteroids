@@ -1,8 +1,5 @@
 Todo:
 
-- HUD
-- Afterburner
-- Invulnerability
-- Sounds/music
+- Make turbo time rather than tick based
 - User interface
 - High scores

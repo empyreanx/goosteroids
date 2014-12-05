@@ -41,17 +41,16 @@ GreyGoo.prototype.render = function (canvas, globs) {
 	
 	//filter alpha channel
 	var image = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-	var imageData = image.data;
 	
-	for (var i = 0; i < imageData.length; i += 4) {
+	for (var i = 0; i < image.data.length; i += 4) {
 		var j = i + 3;
 
-		if (imageData[j] < this.settings.minThreshold) {
-			imageData[j] = 0;	
-		} else if (this.settings.minThreshold <= imageData[j] && imageData[j] <= this.settings.maxThreshold) {
-			imageData[j] = 255;	
-		} else if (imageData[j] > this.settings.maxThreshold) {
-			imageData[j] = 255;
+		if (image.data[j] < this.settings.minThreshold) {
+			image.data[j] = 0;	
+		} else if (this.settings.minThreshold <= image.data[j] && image.data[j] <= this.settings.maxThreshold) {
+			image.data[j] = 255;	
+		} else if (image.data[j] > this.settings.maxThreshold) {
+			image.data[j] = 255;
 		}
 	}
 	

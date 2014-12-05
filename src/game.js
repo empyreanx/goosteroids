@@ -241,6 +241,7 @@ Game.prototype.update = function () {
 					this.bullets.remove(i);
 					this.globs.remove(j);
 					this.score += this.settings.pointsPerGlob;
+					break;
 				}
 			}
 			

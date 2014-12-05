@@ -1,16 +1,21 @@
+/*
+ * JQuery imports
+ */ 
 var $ = require('jquery');
 
 require('jquery-ui');
+require('./progressbar.js');
 
+/*
+ * Game imports
+ */
 var Game = require('./game.js');
 var Events = require('./events.js');
 var Sound = require('./sound.js');
 
-var templates = {
-	splash: require('../tpl/splash.hbs'), 
-	game: require('../tpl/game.hbs')
-};
-
+/*
+ * Game settings
+ */
 var settings = { 
 	fps: 30,					//default frames per second
 	lives: 3,
@@ -132,9 +137,23 @@ var sounds = [
 	}
 ];
 
+/*
+ * Templates
+ */ 
+var templates = {
+	splash: require('../tpl/splash.hbs'), 
+	game: require('../tpl/game.hbs')
+};
+
+/*
+ * Globals
+ */
 var stage = 1;
 var game = null;
 
+/*
+ * Register event handlers
+ */
 Events.on('stageOver', function () {
 	this.stopLoop();
 	alert('stage over');
@@ -148,17 +167,21 @@ Events.on('gameOver', function () {
 	alert('gameOver: ' + this.score);
 });
 
-function fade(screenOut, screenIn, onComplete) {
-	screenIn.css('z-index', -1);
-	
+function fade(screenOut, screenIn, onComplete) {	
 	screenOut.fadeOut(2000);
 	
 	if (onComplete)
 		screenIn.fadeIn(2000, onComplete);
 	else
 		screenIn.fadeIn(2000);
-		
-	screenIn.css('z-index', 0);
+}
+
+function startGame() {
+	Sound.startMusic();
+	
+	game = new Game($('#canvas').get(0), settings);
+	game.setupStage(stage);
+	game.startLoop();
 }
 
 $(function() {
@@ -167,18 +190,19 @@ $(function() {
 	var splashScreen = $(templates.splash());
 	
 	$('body').append(splashScreen);
+	var progressBar = $('#progress-bar').progressBar();
 	splashScreen.show();
 	
 	var gameScreen = $(templates.game());
 	$('body').append(gameScreen);
 	
 	Sound.load(sounds, function () {
-		fade(splashScreen, gameScreen);
+		fade(splashScreen, gameScreen, function () {
+			splashScreen.remove();
+		});
 		
-		game = new Game($('#canvas').get(0), settings);
-		game.setupStage(stage);
-		game.startLoop();
-		
-		Sound.startMusic();
+		startGame();
+	}, function (data) {
+		progressBar.progress(data.progress * 100);
 	});
 });
