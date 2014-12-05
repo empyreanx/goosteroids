@@ -109,7 +109,10 @@ Game.prototype.setupEvents = function() {
 	this.keyboard.keyUp(Keyboard.keys.shift, this, function() {
 		if (this.ship) {
 			this.ship.turbo = false;
-			this.ship.rechargeCooldown = this.ticks(this.ship.settings.turbo.rechargeCooldown);
+			
+			if (this.ship.rechargeCooldown == 0) {
+				this.ship.rechargeCooldown = this.ticks(this.ship.settings.turbo.rechargeCooldown);
+			}
 		}
 	});	
 	

@@ -12,7 +12,8 @@
     "jquery": "~2.1.1",
     "hbsfy": "~2.2.0",
     "grunt-contrib-copy": "~0.7.0",
-    "browserify-shim": "~3.8.0"
+    "browserify-shim": "~3.8.0",
+    "jquery-ui": "~1.10.5"
   },
   "browserify-shim": {
     "createjs": "global:createjs"

@@ -6,7 +6,8 @@ var randomInteger = require('./utilities.js').randomInteger;
 
 var Sound = { 
 	settings: {},
-	enabled: true,
+	volume: 1,
+	enabled: false,
 	muted: false,
 	musicOn: false,
 	music: null
@@ -20,7 +21,9 @@ Sound.init = function (settings) {
 		
 		var cap = createjs.Sound.getCapabilities();
 		
-		if (!cap.mp3) {
+		if (cap.mp3) {
+			Sound.enabled = true;
+		} else {
 			Sound.enabled = false;
 		}
 	}
@@ -40,10 +43,12 @@ Sound.load = function (manifest, onComplete, onProgress) {
 	}
 }
 
+Sound.setVolume = function (volume) {
+	Sound.volume = volume;
+}
+
 Sound.play = function (id, volume, loop, onComplete) {
 	if (Sound.enabled) {
-		volume = (volume == undefined) ? 1 : volume; 
-		
 		var sound = null;
 		
 		if (loop) {
@@ -57,40 +62,50 @@ Sound.play = function (id, volume, loop, onComplete) {
 		}
 		
 		return sound;
+	} else {
+		return null;
 	}
-	
-	return null;
 }
 
 Sound.playMusic = function (onComplete) {
-	Sound.music = Sound.play('music' + randomInteger(1, Sound.settings.numTracks), 1, false, onComplete);
+	if (Sound.enabled) {
+		Sound.music = Sound.play('music' + randomInteger(1, Sound.settings.numTracks), 1, false, onComplete);
+	}
 }
 
 Sound.startMusic = function () {
-	Sound.musicOn = true;
-	
-	var onComplete = function () {
-		if (Sound.musicOn) {
-			Sound.playMusic(onComplete);
-		}
-	};
-	
-	Sound.playMusic(onComplete);
+	if (Sound.enabled) {
+		Sound.musicOn = true;
+		
+		var onComplete = function () {
+			if (Sound.musicOn) {
+				Sound.playMusic(onComplete);
+			}
+		};
+		
+		Sound.playMusic(onComplete);
+	}
 }
 
 Sound.stopMusic = function () {
-	Sound.musicOn = false;
-	Sound.music.stop();
+	if (Sound.enabled) {
+		Sound.musicOn = false;
+		Sound.music.stop();
+	}
 }
 
 Sound.mute = function () {
-	Sound.muted = true;
-	createjs.Sound.setMute(true);
+	if (Sound.enabled) {
+		Sound.muted = true;
+		createjs.Sound.setMute(true);
+	}
 }
 
 Sound.unmute = function () {
-	Sound.muted = false;
-	createjs.Sound.setMute(true);
+	if (Sound.enabled) {
+		Sound.muted = false;
+		createjs.Sound.setMute(true);
+	}
 }
 
 Sound.stopAll = function () {
