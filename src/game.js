@@ -25,8 +25,6 @@ function Game(canvas, settings) {
 	this.canvas = canvas;
 	this.settings = settings;
 	
-	this.dt = 1 / settings.fps;
-
 	this.lives = settings.lives;	//number of lives remaining
 	this.score = 0;					//total accumulated points
 	this.stageOver = false;			//true if the stage is over false otherwise
@@ -36,7 +34,7 @@ function Game(canvas, settings) {
 	this.frame = null;				//animation frame
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
-	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
+	this.physics = new Physics(canvas.width, canvas.height);	
 	this.greyGoo = new GreyGoo(canvas.width, canvas.height, settings.greyGoo);
 	
 	this.reset();
