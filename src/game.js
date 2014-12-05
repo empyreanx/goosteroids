@@ -32,7 +32,7 @@ function Game(canvas, settings) {
 	this.stageOver = false;			//true if the stage is over false otherwise
 	this.running = false; 			//true if the game is running
 	this.lastTime = 0;				//number of seconds since last frame (fractional)
-	this.fps = 30;					//frames per second
+	this.fps = settings.fps;		//frames per second
 	this.frame = null;				//animation frame
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
