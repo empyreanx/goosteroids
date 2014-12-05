@@ -1,5 +1,8 @@
 Todo:
 
-- Make turbo time rather than tick based
-- User interface
-- High scores
+- User interface:
+	- dialog plugin
+	- high scores
+	- play again
+	- about
+	- credits

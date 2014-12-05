@@ -228,7 +228,7 @@ Game.prototype.update = function () {
 	
 	//update ship
 	if (this.ship) {
-		this.ship.update(this.physics);
+		this.ship.update(this.physics, this);
 		
 		if (this.ship.gunCooldown == 0) {
 			if (this.ship.fireGun) {

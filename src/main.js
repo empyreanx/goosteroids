@@ -47,11 +47,11 @@ var settings = {
 		
 		speedBoost: {
 			fuel: 100,
-			consumption: 5,
 			thrust: 2500,
 			maxSpeed: 800,
-			recharge: 2,
 			rechargeCooldown: 2000,
+			rechargeTime: 2000,
+			boostTime: 1000,
 			
 			flames: {
 				step: 3,

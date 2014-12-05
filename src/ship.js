@@ -24,17 +24,17 @@ function Ship(position, invulnerable, settings) {
 	this.boundaryModel.push(this.model[1].add(new Vector(0, 2 * settings.borderWidth)));
 	this.boundaryModel.push(this.model[2].add(new Vector(settings.borderWidth, 0)));
 	
-	this.orientation = -Math.PI / 2;			//note the value is negative because we are working in screen coordinates
-	this.accelerating = 0;						//equal to 1 if the ship is accelerating, 0 otherwise
-	this.turning = 0;							//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
-	this.alive = true;							//true if ship is alive
-	this.fireGun = false;						//true if user is attempting to fire the ship's laser cannon
-	this.gunCooldown = 0;						//ticks remaining until gun can fire again
-	this.thrust = settings.thrust; 				//thrust applied to the ship if the engine is on
-	this.speedBoost = false;							//true if speedBoost is on
-	this.speedBoostFuel = this.settings.speedBoost.fuel; 	//speedBoost fuel remaining
-	this.rechargeCooldown = 0;					//speedBoost recharge cooldown
-	this.invulnerable = invulnerable;			//ticks until ship becomes vulnerable
+	this.orientation = -Math.PI / 2;						//note the value is negative because we are working in screen coordinates
+	this.accelerating = 0;									//equal to 1 if the ship is accelerating, 0 otherwise
+	this.turning = 0;										//equal to -1 if turning counter-clockwise, 1 turning clockwise, 0 otherwise
+	this.alive = true;										//true if ship is alive
+	this.fireGun = false;									//true if user is attempting to fire the ship's laser cannon
+	this.gunCooldown = 0;									//ticks remaining until gun can fire again
+	this.thrust = settings.thrust; 							//thrust applied to the ship if the engine is on
+	this.speedBoost = false;								//true if speed boost is on
+	this.speedBoostFuel = this.settings.speedBoost.fuel; 	//speed boost fuel remaining
+	this.rechargeCooldown = 0;								//speed boost recharge cooldown
+	this.invulnerable = invulnerable;						//ticks until ship becomes vulnerable
 }
 
 /*
@@ -46,7 +46,7 @@ Ship.prototype.constructor = Ship;
 /*
  * Updates the state of the ship by one tick
  */
-Ship.prototype.update = function (physics) {
+Ship.prototype.update = function (physics, game) {
 	//handle invulnerability
 	if (this.invulnerable > 0) {
 		this.invulnerable--;
@@ -54,7 +54,8 @@ Ship.prototype.update = function (physics) {
 	
 	//handle speedBoost
 	if (this.speedBoost && this.speedBoostFuel > 0) {
-		this.speedBoostFuel = clamp(this.speedBoostFuel - this.settings.speedBoost.consumption, 0, this.settings.speedBoost.fuel);
+		var consumption = this.settings.speedBoost.fuel * (1.0 / game.ticks(this.settings.speedBoost.boostTime));
+		this.speedBoostFuel = clamp(this.speedBoostFuel - consumption, 0, this.settings.speedBoost.fuel);
 		this.thrust = this.settings.speedBoost.thrust;
 		this.maxSpeed = this.settings.speedBoost.maxSpeed;
 	} else {
@@ -67,7 +68,8 @@ Ship.prototype.update = function (physics) {
 	}
 	
 	if (!this.speedBoost && this.rechargeCooldown == 0) {
-		this.speedBoostFuel = clamp(this.speedBoostFuel + this.settings.speedBoost.recharge, 0, this.settings.speedBoost.fuel);
+		var recharge = this.settings.speedBoost.fuel * (1.0 / game.ticks(this.settings.speedBoost.rechargeTime));	
+		this.speedBoostFuel = clamp(this.speedBoostFuel + recharge, 0, this.settings.speedBoost.fuel);
 	}
 
 	//update physics
