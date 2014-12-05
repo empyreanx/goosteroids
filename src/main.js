@@ -45,7 +45,7 @@ var settings = {
 			thickness: 2
 		},
 		
-		turbo: {
+		speedBoost: {
 			fuel: 100,
 			consumption: 5,
 			thrust: 2500,
@@ -141,14 +141,21 @@ var sounds = [
  * Templates
  */ 
 var templates = {
-	splash: require('../tpl/splash.hbs'), 
-	game: require('../tpl/game.hbs')
+	splash: require('../tpl/splash.hbs'),
+	introduction: require('../tpl/introduction.hbs'),
+	stage: require('../tpl/stage.hbs'),
+	game: require('../tpl/game.hbs'),
+	gameOver: require('../tpl/gameover.hbs')
 };
 
 /*
  * Globals
  */
-var stage = 1;
+var splashScreen = null;
+var introductionScreen = null;
+var stageScreen = null;
+var gameScreen = null;
+var gameOverScreen = null;
 var game = null;
 
 /*
@@ -156,17 +163,84 @@ var game = null;
  */
 Events.on('stageOver', function () {
 	this.stopLoop();
-	alert('stage over');
-	this.setupStage(++stage);
-	this.startLoop();
+	
+	game.nextStage();
+	
+	stageScreen = $(templates.stage({ stage: game.stage }));
+	$('body').append(stageScreen);
+	
+	fade(gameScreen, stageScreen, function () {
+		fade(stageScreen, gameScreen, function () {
+			stageScreen.remove();
+		});
+		
+		game.startLoop();
+	});
+	
 });
 
 Events.on('gameOver', function () {
 	Sound.stopMusic();
 	Sound.stopAll();
-	alert('gameOver: ' + this.score);
+	
+	$('body').append(gameOverScreen);
+	
+	fade(gameScreen, gameOverScreen, function () {
+		game.stopLoop();
+	});
 });
 
+/*
+ * Main
+ */
+$(function() {
+	splashScreen = $(templates.splash());
+	introductionScreen = $(templates.introduction());
+	gameScreen = $(templates.game());
+	gameOverScreen = $(templates.gameOver());
+	
+	Sound.init(settings.sound);
+	
+	$('body').append(splashScreen);
+	
+	var progressBar = $('#progress-bar').progressBar();
+	splashScreen.show();
+	
+	$('body').append(introductionScreen);
+	
+	Sound.load(sounds, function () {
+		fade(splashScreen, introductionScreen, function () {
+			splashScreen.remove();
+		});
+		
+		$('body').append(gameScreen);
+			
+		$('#play-button').click(function () {
+			Sound.startMusic();
+			
+			newGame();
+			
+			stageScreen = $(templates.stage({ stage: 1 }));
+			$('body').append(stageScreen);
+			
+			fade(introductionScreen, stageScreen, function () {
+				introductionScreen.remove();
+				
+				fade(stageScreen, gameScreen, function ()  {
+					stageScreen.remove();
+				});
+				
+				game.startLoop();
+			});
+		});
+	}, function (data) {
+		progressBar.progress(data.progress * 100);
+	});
+});
+
+/*
+ * Utility function for fading from one screen to another.
+ */
 function fade(screenOut, screenIn, onComplete) {	
 	screenOut.fadeOut(2000);
 	
@@ -176,33 +250,10 @@ function fade(screenOut, screenIn, onComplete) {
 		screenIn.fadeIn(2000);
 }
 
-function startGame() {
-	Sound.startMusic();
-	
+/*
+ * Utility function for setting up a new game.
+ */
+function newGame() {
 	game = new Game($('#canvas').get(0), settings);
-	game.setupStage(stage);
-	game.startLoop();
+	game.nextStage();
 }
-
-$(function() {
-	Sound.init(settings.sound);
-	
-	var splashScreen = $(templates.splash());
-	
-	$('body').append(splashScreen);
-	var progressBar = $('#progress-bar').progressBar();
-	splashScreen.show();
-	
-	var gameScreen = $(templates.game());
-	$('body').append(gameScreen);
-	
-	Sound.load(sounds, function () {
-		fade(splashScreen, gameScreen, function () {
-			splashScreen.remove();
-		});
-		
-		startGame();
-	}, function (data) {
-		progressBar.progress(data.progress * 100);
-	});
-});

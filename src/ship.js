@@ -31,9 +31,9 @@ function Ship(position, invulnerable, settings) {
 	this.fireGun = false;						//true if user is attempting to fire the ship's laser cannon
 	this.gunCooldown = 0;						//ticks remaining until gun can fire again
 	this.thrust = settings.thrust; 				//thrust applied to the ship if the engine is on
-	this.turbo = false;							//true if turbo is on
-	this.turboFuel = this.settings.turbo.fuel; 	//turbo fuel remaining
-	this.rechargeCooldown = 0;					//turbo recharge cooldown
+	this.speedBoost = false;							//true if speedBoost is on
+	this.speedBoostFuel = this.settings.speedBoost.fuel; 	//speedBoost fuel remaining
+	this.rechargeCooldown = 0;					//speedBoost recharge cooldown
 	this.invulnerable = invulnerable;			//ticks until ship becomes vulnerable
 }
 
@@ -52,22 +52,22 @@ Ship.prototype.update = function (physics) {
 		this.invulnerable--;
 	}
 	
-	//handle turbo
-	if (this.turbo && this.turboFuel > 0) {
-		this.turboFuel = clamp(this.turboFuel - this.settings.turbo.consumption, 0, this.settings.turbo.fuel);
-		this.thrust = this.settings.turbo.thrust;
-		this.maxSpeed = this.settings.turbo.maxSpeed;
+	//handle speedBoost
+	if (this.speedBoost && this.speedBoostFuel > 0) {
+		this.speedBoostFuel = clamp(this.speedBoostFuel - this.settings.speedBoost.consumption, 0, this.settings.speedBoost.fuel);
+		this.thrust = this.settings.speedBoost.thrust;
+		this.maxSpeed = this.settings.speedBoost.maxSpeed;
 	} else {
 		this.thrust = this.settings.thrust;
 		this.maxSpeed = this.settings.maxSpeed;
 	}
 
-	if (!this.turbo && this.rechargeCooldown > 0) {
+	if (!this.speedBoost && this.rechargeCooldown > 0) {
 		this.rechargeCooldown--;
 	}
 	
-	if (!this.turbo && this.rechargeCooldown == 0) {
-		this.turboFuel = clamp(this.turboFuel + this.settings.turbo.recharge, 0, this.settings.turbo.fuel);
+	if (!this.speedBoost && this.rechargeCooldown == 0) {
+		this.speedBoostFuel = clamp(this.speedBoostFuel + this.settings.speedBoost.recharge, 0, this.settings.speedBoost.fuel);
 	}
 
 	//update physics
@@ -90,8 +90,8 @@ Ship.prototype.render = function (graphics) {
 		if (this.accelerating) {
 			var flames = [];
 			
-			if (this.turbo && this.turboFuel > 0) {
-				flames = this.getEngineFlames(this.settings.turbo.flames.step, this.settings.turbo.flames.magnitude);
+			if (this.speedBoost && this.speedBoostFuel > 0) {
+				flames = this.getEngineFlames(this.settings.speedBoost.flames.step, this.settings.speedBoost.flames.magnitude);
 			} else {
 				flames = this.getEngineFlames(this.settings.flames.step, this.settings.flames.magnitude);
 			}

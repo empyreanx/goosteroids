@@ -25,6 +25,7 @@ function Game(canvas, settings) {
 	this.canvas = canvas;
 	this.settings = settings;
 	
+	this.stage = 0;					//level
 	this.lives = settings.lives;	//number of lives remaining
 	this.score = 0;					//total accumulated points
 	this.stageOver = false;			//true if the stage is over false otherwise
@@ -32,6 +33,7 @@ function Game(canvas, settings) {
 	this.lastTime = 0;				//number of seconds since last frame (fractional)
 	this.fps = settings.fps;		//frames per second
 	this.frame = null;				//animation frame
+	
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
 	this.physics = new Physics(canvas.width, canvas.height);	
@@ -101,18 +103,18 @@ Game.prototype.setupEvents = function() {
 			this.ship.fireGun = false;
 	});
 	
-	//turbo
+	//speedBoost
 	this.keyboard.keyDown(Keyboard.keys.shift, this, function() {
 		if (this.ship)
-			this.ship.turbo = true;
+			this.ship.speedBoost = true;
 	});
 	
 	this.keyboard.keyUp(Keyboard.keys.shift, this, function() {
 		if (this.ship) {
-			this.ship.turbo = false;
+			this.ship.speedBoost = false;
 			
 			if (this.ship.rechargeCooldown == 0) {
-				this.ship.rechargeCooldown = this.ticks(this.ship.settings.turbo.rechargeCooldown);
+				this.ship.rechargeCooldown = this.ticks(this.ship.settings.speedBoost.rechargeCooldown);
 			}
 		}
 	});	
@@ -141,18 +143,35 @@ Game.prototype.getCanvasCenter = function () {
 /*
  * Setup stage
  */
-Game.prototype.setupStage = function (stage) {
-	this.stage = stage;
+Game.prototype.nextStage = function (stage) {
+	this.stage++;
 	
 	this.reset();
 
-	for (var i = 0; i < stage * this.settings.globsPerStage; i++) {
+	for (var i = 0; i < this.stage * this.settings.globsPerStage; i++) {
 		var x = random(0, this.canvas.width);
 		var y = random(0, this.canvas.height);
 		this.globs.push(new Glob(new Vector(x, y), new Vector(0, 0), this.settings.glob));
 	}
 	
 	this.stageOver = false;
+}
+
+/*
+ * Update timing information
+ */
+Game.prototype.updateTime = function (time) {
+	var currentTime = time / 1000.0;
+	
+	if (this.lastTime > 0) {
+		var diff = currentTime - this.lastTime;
+		this.fps = (0.7 * this.fps) + (0.3 / diff); //take a weighted average to prevent wild fluctuations
+	} else {
+		this.fps = this.settings.fps;
+	}
+	
+	this.physics.dt = 1.0 / this.fps;	
+	this.lastTime = currentTime;
 }
 
 /*
@@ -290,12 +309,12 @@ Game.prototype.render = function () {
 Game.prototype.renderHUD = function () {
 	this.graphics.drawText(this.score, new Vector(this.canvas.width - 80, 60), 24, this.settings.textFont, this.settings.textColor);
 	
-	this.graphics.drawText("TURBO", new Vector(20, 30), 10, this.settings.textFont, this.settings.textColor);
+	this.graphics.drawText("FUEL", new Vector(20, 30), 10, this.settings.textFont, this.settings.textColor);
 	
 	this.graphics.drawRectangle(new Vector(63, 21), 102, 10, 2, 'white', 'black');
 	
 	if (this.ship) {
-		this.graphics.drawRectangle(new Vector(64, 22), (this.ship.turboFuel / this.ship.settings.turbo.fuel) * 100, 8, 0, 'blue');
+		this.graphics.drawRectangle(new Vector(64, 22), (this.ship.speedBoostFuel / this.ship.settings.speedBoost.fuel) * 100, 8, 0, 'blue');
 	}
 	
 	this.graphics.drawText("STAGE", new Vector(20, 50), 10, this.settings.textFont, this.settings.textColor);
@@ -313,18 +332,7 @@ Game.prototype.renderHUD = function () {
  * Main game loop
  */
 Game.prototype.loop = function (time) {
-	var currentTime = time / 1000.0;
-	
-	if (this.lastTime > 0) {
-		var diff = currentTime - this.lastTime;
-		this.fps = (0.7 * this.fps) + (0.3 / diff); //take a weighted average to prevent wild fluctuations
-	} else {
-		this.fps = this.settings.fps;
-	}
-	
-	this.physics.dt = 1.0 / this.fps;	
-	this.lastTime = currentTime;
-	
+	this.updateTime(time);
 	this.update();
 	this.render();
 	this.renderHUD();

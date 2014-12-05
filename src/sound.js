@@ -47,14 +47,14 @@ Sound.setVolume = function (volume) {
 	Sound.volume = volume;
 }
 
-Sound.play = function (id, volume, loop, onComplete) {
+Sound.play = function (id, loop, onComplete) {
 	if (Sound.enabled) {
 		var sound = null;
 		
 		if (loop) {
-			sound = createjs.Sound.play(id, createjs.Sound.INTERRUPT_NONE, 0, 0, -1, volume, 0);
+			sound = createjs.Sound.play(id, createjs.Sound.INTERRUPT_NONE, 0, 0, -1, this.volume, 0);
 		} else {
-			sound = createjs.Sound.play(id, createjs.Sound.INTERRUPT_NONE, 0, 0, 0, volume, 0);
+			sound = createjs.Sound.play(id, createjs.Sound.INTERRUPT_NONE, 0, 0, 0, this.volume, 0);
 		}
 	
 		if (onComplete) {
@@ -69,7 +69,7 @@ Sound.play = function (id, volume, loop, onComplete) {
 
 Sound.playMusic = function (onComplete) {
 	if (Sound.enabled) {
-		Sound.music = Sound.play('music' + randomInteger(1, Sound.settings.numTracks), 1, false, onComplete);
+		Sound.music = Sound.play('music' + randomInteger(1, Sound.settings.numTracks), false, onComplete);
 	}
 }
 

@@ -1,14 +1,41 @@
 body {
-	background-color:'white';
+	background-color:white;
+	color:black;
+	font-family:'Courier New', sans-serif;
+	text-align:center;
 	overflow:hidden;
 	padding:0;
 	margin:0;
 	height:100%;
+}
+
+a:visited {
+	color:blue;
+}
+
+a:active, a:focus {
+	outline:none;
+}
+
+h1 {
+	width:100%;
+	font-size:5em;
+	font-weight:bolder;
+	letter-spacing:2px;
+	margin:0px;
+}
+
+h2 {
+	width:100%;
+	font-size:2em;
+	font-weight:bolder;
 	text-align:center;
+	letter-spacing:2px;
+	margin:0px;
 }
 
 div {
-	background-color:'white';
+	background-color:white;
 }
 
 img {
@@ -80,4 +107,47 @@ div.progress-bar div {
 	border-radius:15px;
 	font-family: 'Courier New', sans-serif;
 	font-size:10px;
+}
+
+div.introduction {
+	color:black;
+	font-size:12px;
+	text-align:center;
+	width:500px;
+}
+
+/*
+ * Get rid of inner outline created by Firefox.
+ */
+button::-moz-focus-inner {
+	border: 0;
+}
+
+button:hover {
+	background-color:blue;
+	color:white;
+}
+
+button {
+	cursor:pointer;
+	outline:none;
+	background-color:white;
+	color:black;
+	font-family:'Courier New', sans-serif;
+	border-style:solid;
+	border-color:black;
+}
+
+button.big {
+	font-size:5em;
+	font-weight:bolder;	
+	border-width:10px;
+	padding:25px;
+}
+
+button.small {
+	font-size:1em;
+	font-weight:bolder;	
+	border-width:4px;
+	padding:15px;
 }
