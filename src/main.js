@@ -12,7 +12,7 @@ var templates = {
 };
 
 var settings = { 
-	fps: 30,
+	fps: 30,					//default frames per second
 	lives: 3,
 	globsPerStage: 13,
 	pointsPerGlob: 10,

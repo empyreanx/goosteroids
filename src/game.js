@@ -30,7 +30,10 @@ function Game(canvas, settings) {
 	this.lives = settings.lives;	//number of lives remaining
 	this.score = 0;					//total accumulated points
 	this.stageOver = false;			//true if the stage is over false otherwise
-	
+	this.running = false; 			//true if the game is running
+	this.lastTime = 0;				//number of seconds since last frame (fractional)
+	this.fps = 30;					//frames per second
+	this.frame = null;				//animation frame
 	this.keyboard = new Keyboard();
 	this.graphics = new Graphics(canvas);
 	this.physics = new Physics(canvas.width, canvas.height, this.dt);	
@@ -42,7 +45,7 @@ function Game(canvas, settings) {
 }
 
 Game.prototype.ticks = function (ms) {
-	return Math.floor(ms * this.settings.fps / 1000);
+	return Math.floor(ms * this.fps / 1000);
 }
 
 Game.prototype.reset = function () {
@@ -310,26 +313,55 @@ Game.prototype.renderHUD = function () {
 /*
  * Main game loop
  */
-Game.prototype.loop = function () {
+Game.prototype.loop = function (time) {
+	var currentTime = time / 1000.0;
+	
+	if (this.lastTime > 0) {
+		var diff = currentTime - this.lastTime;
+		this.fps = (0.7 * this.fps) + (0.3 / diff); //take a weighted average to prevent wild fluctuations
+	} else {
+		this.fps = this.settings.fps;
+	}
+	
+	this.physics.dt = 1.0 / this.fps;	
+	this.lastTime = currentTime;
+	
 	this.update();
 	this.render();
 	this.renderHUD();
+	
+	var that = this;
+	
+	if (this.running) {
+		this.frame = window.requestAnimationFrame(function (time) {
+			that.loop(time);
+		});
+	}
 }
 
 /*
  * Starts game loop
  */
 Game.prototype.startLoop = function () {
+	this.running = true;
+	this.lastTime = 0;
+	
 	this.keyboard.enableEvents();
-	this.loopId = setInterval((function(self) { return function() { self.loop(); }})(this), this.dt * 1000);
+	
+	var that = this;
+	
+	this.frame = window.requestAnimationFrame(function (time) {
+		that.loop(time);
+	});
 }
 
 /*
  * Stops game loop
  */
 Game.prototype.stopLoop = function () {
-	clearInterval(this.loopId);
+	this.running = false;
 	this.keyboard.enableEvents();
+	window.cancelAnimationFrame(this.frame);
 }
 
 module.exports = Game;
