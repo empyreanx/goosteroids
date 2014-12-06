@@ -32,4 +32,4 @@ To run the game on a local test server run:
  - Design: Liam Mooney, Tom Jansen, Taulant Sulko
  - Music: Sycamore Drive, RushJet1, Rocco Wouters
  - Sound effects: Mike Koenig
- - Special thanks to [Jackpine](http://jackpine.co) for making the first version of Goosteroids possible!
+ - Special thanks to [Jackpine Digital Inc.](http://jackpine.co) for making the first version of Goosteroids possible!
