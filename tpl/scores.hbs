@@ -4,20 +4,30 @@
 			<img src='/image/goosteroids-logo-small.png'>
 		</div>
 		<div class='body'>
-			<h2 style='margin-bottom:10px;'>Your score is {{score}}</h2>
+			<h2 style='margin-bottom:25px;'>Your score is {{score}}</h2>
 			<img src='image/twitter-logo-small.png' style='margin-left:auto; margin-right:auto;'>
-			<hr style='margin-top:10px;'>
+			<hr style='margin-top:25px;'>
 			<table class='high-scores' style='margin-left:auto; margin-right:auto;'>
-				<tr><th>Name</th><th>Stage</th><th>Score</th><th>Time</th></tr>
+				<tr>
+					<th>Name</th>
+					<th>Stage</th>
+					<th>Time</th>
+					<th>Score</th>
+				</tr>
 				{{#each scores}}
-					<tr><td>{{name}}</td><td>{{stage}}</td><td>{{score}}</td><td>{{time}}</td></tr>
+					<tr>
+						<td>{{name}}</td>
+						<td>{{stage}}</td>
+						<td>{{time}}</td>
+						<td>{{score}}</td>
+					</tr>
 				{{/each}}
 			</table>
-			<hr style='margin-bottom:10px;'>
+			<hr style='margin-bottom:25px;'>
 			<div style='margin-left:auto; margin-right:auto;'>
-				<button id='about-button' class='small' style='width:150px; margin-right:5px;'>About</button>
-				<button id='play-again-button'class='small' style='width:150px;'>Play Again</button>
-				<button id='credits-button'class='small' style='width:150px; margin-left:5px;'>Credits</button>
+				<button class='small about' style='width:150px; margin-right:5px;'>About</button>
+				<button class='small play' style='width:150px;'>Play Again</button>
+				<button class='small credits' style='width:150px; margin-left:5px;'>Credits</button>
 			</div>
 		</div>
 		<div class='footer'>

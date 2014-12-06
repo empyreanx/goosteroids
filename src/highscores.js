@@ -35,7 +35,7 @@ HighScores.isHigh = function (score) {
 	return (this.index(score) < 10);
 }
 
-HighScores.add = function (name, stage, score, time) {
+HighScores.add = function (name, stage, time, score) {
 	var index = this.index(score);
 	
 	if (index < 10) {

@@ -3,11 +3,13 @@
  */ 
 var $ = require('jquery');
 
-global.jQuery = $;	//for plugins
+global.jQuery = $;				//for plugins
 
-require('jquery-ui');
-require('jquery.cookie');
-require('./progressbar.js');
+require('jquery-ui');			//for effects
+require('jquery.cookie');		//for persistence
+
+require('./dialog.js');			//custom dialog plugin
+require('./progressbar.js');	//custom progress bar plugin
 
 /*
  * Game imports
@@ -150,7 +152,10 @@ var templates = {
 	stage: require('../tpl/stage.hbs'),
 	game: require('../tpl/game.hbs'),
 	gameOver: require('../tpl/gameover.hbs'),
-	scores: require('../tpl/scores.hbs')
+	scores: require('../tpl/scores.hbs'),
+	dialogs: {
+		highScore: require('../tpl/dialogs/highscore.hbs')
+	}
 };
 
 /*
@@ -166,9 +171,77 @@ var screens = {
 };
 
 var game = null;	//global game object
-
 var startTime = 0;	//game start time
 var endTime = 0;	//game end time
+
+/*
+ * Dialog display functions
+ */
+function highScoreDialog() {
+	var dialog = $(templates.dialogs.highScore()).dialog();
+		
+	dialog.find('button.submit').click(function () {
+		var name = dialog.find('input.name').val().trim();
+		
+		if (name.length > 0) {
+			HighScores.add(name, game.stage, timeToString(endTime - startTime), game.score);
+			HighScores.save();
+			
+			$.modal.close();
+			
+			scoresScreen();
+		} else {
+			dialog.find('span.message').html('Bragging requires a name!<br>Please enter your name below:');
+		}
+	});
+	
+	dialog.find('button.cancel').click(function () {
+		HighScores.add('Anonymous Coward', game.stage, timeToString(endTime - startTime), game.score);
+		HighScores.save();
+		
+		$.modal.close();
+		
+		scoresScreen();
+	});
+}
+
+/*
+ * Screen display functions
+ */
+function scoresScreen() {
+	screens.scores = $(templates.scores( { score: game.score, scores: HighScores.scores } ));
+	
+	addScreen(screens.scores);
+	
+	fade(screens.gameOver, screens.scores, function () {
+		screens.gameOver.remove();
+		
+		screens.scores.find('button.play').click(function () {
+			playGame(screens.scores);
+		});
+	});
+}
+
+function playGame(screen) {
+	Sound.startMusic();
+	
+	game = new Game($('#canvas').get(0), settings);
+	game.nextStage();
+	
+	var stageScreen = $(templates.stage({ stage: 1 }));
+	addScreen(stageScreen);
+	
+	fade(screen, stageScreen, function () {
+		screen.remove();
+			
+		fade(stageScreen, screens.game, function ()  {
+			stageScreen.remove();
+		});
+		
+		startTime = new Date().getTime();	
+		game.startLoop();
+	});
+}
 
 /*
  * Register event handlers
@@ -192,8 +265,6 @@ Events.on('stageOver', function () {
 });
 
 Events.on('gameOver', function () {
-	endTime = new Date().getTime();
-	
 	Sound.stopMusic();
 	Sound.stopAll();
 	
@@ -201,45 +272,17 @@ Events.on('gameOver', function () {
 	
 	fade(screens.game, screens.gameOver, function () {
 		game.stopLoop();
-	
+		endTime = new Date().getTime();
+		
 		HighScores.load();
 		
-		HighScores.add('James', game.stage, game.score, timeToString(endTime - startTime));
-		
-		HighScores.save();
-	
-		screens.scores = $(templates.scores({ score: game.score, scores: HighScores.scores }));
-		addScreen(screens.scores);
-		
-		fade(screens.gameOver, screens.scores, function () {
-			screens.gameOver.remove();
-			
-			$('#play-again-button').click(function () {
-				playGame(screens.scores);
-			});
-		});
+		if (HighScores.isHigh(game.score)) {
+			highScoreDialog();
+		} else {
+			scoresScreen();
+		}
 	});
 });
-
-function playGame(screen) {
-	startTime = new Date().getTime();
-	
-	game = new Game($('#canvas').get(0), settings);
-	game.nextStage();
-	
-	var stageScreen = $(templates.stage({ stage: 1 }));
-	addScreen(stageScreen);
-	
-	fade(screen, stageScreen, function () {
-		screen.remove();
-			
-		fade(stageScreen, screens.game, function ()  {
-			stageScreen.remove();
-		});
-			
-		game.startLoop();
-	});
-}
 
 function initSoundToggle() {
 	$('#sound-toggle').click(function () {
@@ -289,8 +332,7 @@ $(function() {
 		
 		addScreen(screens.game);
 			
-		$('#play-button').click(function () {
-			Sound.startMusic();
+		screens.introduction.find('button.play').click(function () {
 			playGame(screens.introduction);
 		});
 	}, function (data) {
@@ -322,11 +364,11 @@ function timeToString(time) {
 	
 	var hours = Math.round(time / (60 * 60));	//calculuate hours
 	
-	time -= hours * (60 * 60);					
+	time = time % (60 * 60);					
 	
 	var minutes = Math.round(time / 60);		//calculate minutes
 	
-	time -= minutes * 60;
+	time = time % 60;
 	
 	var seconds = time;
 	

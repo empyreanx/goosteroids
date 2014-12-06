@@ -92,7 +92,13 @@ div.screen {
 	margin:0;
 }
 
-div.header {
+div.screen > div.wrapper {
+	display:table;
+	height:100%;
+	width:100%;
+}
+
+div.wrapper > div.header {
 	position:fixed;
 	left:0;
 	top:0;
@@ -101,7 +107,14 @@ div.header {
 	padding:25px 0% 0% 0%; 
 }
 
-div.footer {
+div.wrapper > div.body {
+	display:table-cell;
+	vertical-align:middle;
+	height:100%;
+	width:100%;
+}
+
+div.wrapper > div.footer {
 	position:fixed;
 	left:0;
 	bottom:0;
@@ -110,17 +123,54 @@ div.footer {
 	padding:0% 0% 25px 0%;
 }
 
-div.wrapper {
-	display:table;
-	height:100%;
-	width:100%;
+div.dialog {
+	display:none;
+	width:400px;
+	height:300px;
+	border-style:solid;
+	border-color:black;
+	border-width:2px;
+	background-color:white;
+	padding:10px 0px;
 }
 
-div.body {
-	display:table-cell;
-	vertical-align:middle;
-	height:100%;
+div.dialog input[type=text] {
+	background-color:white;
+	border:1px solid black;
+	outline:none;
+}
+
+div.dialog hr {
+	width:300px;
+	height:3px;
+}
+
+div.dialog button {
+	font-size:14px;
+	font-weight:bold;	
+	border-width:1px;
+	padding:5px;
+	margin:2px;
+}
+
+div.dialog div.header {
 	width:100%;
+	font-size:1em;
+	font-weight:bolder;
+	text-align:center;
+	letter-spacing:2px;
+}
+
+div.dialog div.body {
+	text-align:center;
+	font-size:14px;
+	font-weight:lighter;
+	overflow:hidden;
+}
+
+div.dialog div.footer {
+	width:100%;
+	text-align:center;
 }
 
 div.progress-bar {
@@ -192,5 +242,6 @@ div.controls table td {
 }
 
 table.high-scores th {
-	width:100px;
+	width:175px;
 }
+
