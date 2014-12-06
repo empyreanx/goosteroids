@@ -154,7 +154,9 @@ var templates = {
 	gameOver: require('../tpl/gameover.hbs'),
 	scores: require('../tpl/scores.hbs'),
 	dialogs: {
-		highScore: require('../tpl/dialogs/highscore.hbs')
+		highScore: require('../tpl/dialogs/highscore.hbs'),
+		about: require('../tpl/dialogs/about.hbs'),
+		credits: require('../tpl/dialogs/credits.hbs')
 	}
 };
 
@@ -205,6 +207,22 @@ function highScoreDialog() {
 	});
 }
 
+function aboutDialog() {
+	var dialog = $(templates.dialogs.about()).dialog();
+		
+	dialog.find('button.close').click(function () {
+		$.modal.close();
+	});
+}
+
+function creditsDialog() {
+	var dialog = $(templates.dialogs.credits()).dialog();
+		
+	dialog.find('button.close').click(function () {
+		$.modal.close();
+	});
+}
+
 /*
  * Screen display functions
  */
@@ -213,12 +231,20 @@ function scoresScreen() {
 	
 	addScreen(screens.scores);
 	
+	screens.scores.find('button.about').click(function () {
+		aboutDialog();
+	});
+	
+	screens.scores.find('button.play').click(function () {
+		playGame(screens.scores);
+	});
+	
+	screens.scores.find('button.credits').click(function () {
+		creditsDialog();
+	});
+	
 	fade(screens.gameOver, screens.scores, function () {
 		screens.gameOver.remove();
-		
-		screens.scores.find('button.play').click(function () {
-			playGame(screens.scores);
-		});
 	});
 }
 

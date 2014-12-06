@@ -3,7 +3,8 @@
 ### Introduction
 
  Goosteroids is a [grey goo](http://en.wikipedia.org/wiki/Grey_goo) themed remake of the classic 1979 Atari game [Asteroids](http://en.wikipedia.org/wiki/Asteroids_%28video_game%29). Originally
- created as a promotion by [Jackpine](http://jackpine.co), Goosteroids has been entirely rewritten and redesigned to run entirely in the browser. 
+ created as a promotion by [Jackpine Digital Inc](http://jackpine.co), Goosteroids has been rewritten and redesigned to run entirely in the browser. The source code has been released under
+ the GPL version 3.
  
 ### Building & Running
 

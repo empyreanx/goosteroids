@@ -4,7 +4,7 @@ var $ = require('jquery');
 require('jquery.cookie');
 require('./utilities.js');
 
-var HighScores = { scores: [] };
+var HighScores = { scores: [], maxScores: 5 };
 
 HighScores.load = function () {	
 	var cookie = $.cookie('high-scores');
@@ -32,17 +32,17 @@ HighScores.index = function (score) {
 }
 
 HighScores.isHigh = function (score) {
-	return (this.index(score) < 10);
+	return (this.index(score) < this.maxScores);
 }
 
 HighScores.add = function (name, stage, time, score) {
 	var index = this.index(score);
 	
-	if (index < 10) {
+	if (index < this.maxScores) {
 		this.scores.splice(index, 0, { name: name, stage: stage, score: score, time: time });
 	}
 	
-	if (this.scores.length > 10) {
+	if (this.scores.length > this.maxScores) {
 		this.scores.remove(this.scores.length - 1);
 	}
 }
