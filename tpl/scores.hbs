@@ -1,0 +1,21 @@
+<div class='screen'>
+	<div class='wrapper'>
+		<div class='header'>
+			<img src='/image/goosteroids-logo-small.png'>
+		</div>
+		<div class='body'>
+			<h2>Your score is {{score}}</h2>
+			<hr>
+			<table class='high-scores' style='margin-left:auto; margin-right:auto;'>
+				<tr><th>Name</th><th>Stage</th><th>Score</th><th>Time</th></tr>
+				{{#each scores}}
+					<tr><td>{{name}}</td><td>{{stage}}</td><td>{{score}}</td><td>{{time}}</td></tr>
+				{{/each}}
+			</table>
+			<hr>
+		</div>
+		<div class='footer'>
+			<a href='https://github.com/jrimclean/goosteroids' target='_blank'><img src='/image/github-logo-small.png'></a>
+		</div>
+	</div>
+</div>

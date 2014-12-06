@@ -3,6 +3,8 @@
  */ 
 var $ = require('jquery');
 
+global.jQuery = $;
+
 require('jquery-ui');
 require('./progressbar.js');
 
@@ -10,6 +12,7 @@ require('./progressbar.js');
  * Game imports
  */
 var Game = require('./game.js');
+var HighScores = require('./highscores.js');
 var Events = require('./events.js');
 var Sound = require('./sound.js');
 
@@ -18,7 +21,7 @@ var Sound = require('./sound.js');
  */
 var settings = { 
 	fps: 30,					//default frames per second
-	lives: 3,
+	lives: 0,
 	globsPerStage: 13,
 	pointsPerGlob: 10,
 	textColor: 'black',
@@ -145,16 +148,22 @@ var templates = {
 	introduction: require('../tpl/introduction.hbs'),
 	stage: require('../tpl/stage.hbs'),
 	game: require('../tpl/game.hbs'),
-	gameOver: require('../tpl/gameover.hbs')
+	gameOver: require('../tpl/gameover.hbs'),
+	scores: require('../tpl/scores.hbs')
 };
 
 /*
  * Globals
  */
-var splashScreen = null;
-var introductionScreen = null;
-var gameScreen = null;
-var gameOverScreen = null;
+ 
+var screens = {
+	splash: null,
+	introduction: null,
+	game: null,
+	gameOver: null,
+	scores: null
+};
+
 var game = null;
 
 /*
@@ -168,8 +177,8 @@ Events.on('stageOver', function () {
 	var stageScreen = $(templates.stage({ stage: game.stage }));
 	$('body').append(stageScreen);
 	
-	fade(gameScreen, stageScreen, function () {
-		fade(stageScreen, gameScreen, function () {
+	fade(screens.game, stageScreen, function () {
+		fade(stageScreen, screens.game, function () {
 			stageScreen.remove();
 		});
 		
@@ -182,21 +191,37 @@ Events.on('gameOver', function () {
 	Sound.stopMusic();
 	Sound.stopAll();
 	
-	$('body').append(gameOverScreen);
+	$('body').append(screens.gameOver);
 	
-	fade(gameScreen, gameOverScreen, function () {
+	fade(screens.game, screens.gameOver, function () {
 		game.stopLoop();
+	
+		HighScores.load();
+		
+		HighScores.add('James', game.stage, game.score, '1min');
+		
+		HighScores.save();
+	
+		screens.scores = $(templates.scores({ score: game.score, scores: HighScores.scores }));
+		$('body').append(screens.scores);
+		
+		fade(screens.gameOver, screens.scores, function () {
+			screens.gameOver.remove();
+		});
 	});
 });
 
 function playGame(screen) {
+	game = new Game($('#canvas').get(0), settings);
+	game.nextStage();
+	
 	var stageScreen = $(templates.stage({ stage: 1 }));
 	$('body').append(stageScreen);
-		
+	
 	fade(screen, stageScreen, function () {
 		screen.remove();
 			
-		fade(stageScreen, gameScreen, function ()  {
+		fade(stageScreen, screens.game, function ()  {
 			stageScreen.remove();
 		});
 			
@@ -204,22 +229,14 @@ function playGame(screen) {
 	});
 }
 
-function setupPlayButton() {
-	$('#play-button').click(function () {
-		Sound.startMusic();
-		newGame();
-		playGame(introductionScreen);
-	});
-}
-
 /*
  * Main
  */
 $(function() {
-	splashScreen = $(templates.splash());
-	introductionScreen = $(templates.introduction());
-	gameScreen = $(templates.game());
-	gameOverScreen = $(templates.gameOver());
+	screens.splash = $(templates.splash());
+	screens.introduction = $(templates.introduction());
+	screens.game = $(templates.game());
+	screens.gameOver = $(templates.gameOver());
 	
 	$('#sound-toggle').click(function () {
 		if (Sound.muted) {
@@ -233,21 +250,24 @@ $(function() {
 	
 	Sound.init(settings.sound);
 	
-	$('body').append(splashScreen);
+	$('body').append(screens.splash);
 	
 	var progressBar = $('#progress-bar').progressBar();
-	splashScreen.show();
+	screens.splash.show();
 	
-	$('body').append(introductionScreen);
+	$('body').append(screens.introduction);
 	
 	Sound.load(sounds, function () {
-		fade(splashScreen, introductionScreen, function () {
-			splashScreen.remove();
+		fade(screens.splash, screens.introduction, function () {
+			screens.splash.remove();
 		});
 		
-		$('body').append(gameScreen);
+		$('body').append(screens.game);
 			
-		setupPlayButton();
+		$('#play-button').click(function () {
+			Sound.startMusic();
+			playGame(screens.introduction);
+		});
 	}, function (data) {
 		progressBar.progress(data.progress * 100);
 	});
@@ -263,12 +283,4 @@ function fade(screenOut, screenIn, onComplete) {
 		screenIn.fadeIn(2000, onComplete);
 	else
 		screenIn.fadeIn(2000);
-}
-
-/*
- * Utility function for setting up a new game.
- */
-function newGame() {
-	game = new Game($('#canvas').get(0), settings);
-	game.nextStage();
 }
