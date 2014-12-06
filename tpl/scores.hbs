@@ -4,15 +4,21 @@
 			<img src='/image/goosteroids-logo-small.png'>
 		</div>
 		<div class='body'>
-			<h2>Your score is {{score}}</h2>
-			<hr>
+			<h2 style='margin-bottom:10px;'>Your score is {{score}}</h2>
+			<img src='image/twitter-logo-small.png' style='margin-left:auto; margin-right:auto;'>
+			<hr style='margin-top:10px;'>
 			<table class='high-scores' style='margin-left:auto; margin-right:auto;'>
 				<tr><th>Name</th><th>Stage</th><th>Score</th><th>Time</th></tr>
 				{{#each scores}}
 					<tr><td>{{name}}</td><td>{{stage}}</td><td>{{score}}</td><td>{{time}}</td></tr>
 				{{/each}}
 			</table>
-			<hr>
+			<hr style='margin-bottom:10px;'>
+			<div style='margin-left:auto; margin-right:auto;'>
+				<button id='about-button' class='small' style='width:150px; margin-right:5px;'>About</button>
+				<button id='play-again-button'class='small' style='width:150px;'>Play Again</button>
+				<button id='credits-button'class='small' style='width:150px; margin-left:5px;'>Credits</button>
+			</div>
 		</div>
 		<div class='footer'>
 			<a href='https://github.com/jrimclean/goosteroids' target='_blank'><img src='/image/github-logo-small.png'></a>

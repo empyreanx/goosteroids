@@ -351,7 +351,6 @@ Game.prototype.loop = function (time) {
  */
 Game.prototype.startLoop = function () {
 	this.running = true;
-	this.startTime = new Date().getTime();
 	this.lastTime = 0;
 	
 	this.keyboard.enableEvents();
@@ -368,10 +367,7 @@ Game.prototype.startLoop = function () {
  */
 Game.prototype.stopLoop = function () {
 	this.running = false;
-	this.stopTime = new Date().getTime();
-	
 	this.keyboard.disableEvents();
-	
 	window.cancelAnimationFrame(this.frame);
 }
 

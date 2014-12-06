@@ -6,6 +6,7 @@ var $ = require('jquery');
 global.jQuery = $;	//for plugins
 
 require('jquery-ui');
+require('jquery.cookie');
 require('./progressbar.js');
 
 /*
@@ -164,7 +165,10 @@ var screens = {
 	scores: null
 };
 
-var game = null;
+var game = null;	//global game object
+
+var startTime = 0;	//game start time
+var endTime = 0;	//game end time
 
 /*
  * Register event handlers
@@ -175,7 +179,7 @@ Events.on('stageOver', function () {
 	game.nextStage();
 	
 	var stageScreen = $(templates.stage({ stage: game.stage }));
-	$('body').append(stageScreen);
+	addScreen(stageScreen);
 	
 	fade(screens.game, stageScreen, function () {
 		fade(stageScreen, screens.game, function () {
@@ -188,35 +192,43 @@ Events.on('stageOver', function () {
 });
 
 Events.on('gameOver', function () {
+	endTime = new Date().getTime();
+	
 	Sound.stopMusic();
 	Sound.stopAll();
 	
-	$('body').append(screens.gameOver);
+	addScreen(screens.gameOver);
 	
 	fade(screens.game, screens.gameOver, function () {
 		game.stopLoop();
 	
 		HighScores.load();
 		
-		HighScores.add('James', game.stage, game.score, '1min');
+		HighScores.add('James', game.stage, game.score, timeToString(endTime - startTime));
 		
 		HighScores.save();
 	
 		screens.scores = $(templates.scores({ score: game.score, scores: HighScores.scores }));
-		$('body').append(screens.scores);
+		addScreen(screens.scores);
 		
 		fade(screens.gameOver, screens.scores, function () {
 			screens.gameOver.remove();
+			
+			$('#play-again-button').click(function () {
+				playGame(screens.scores);
+			});
 		});
 	});
 });
 
 function playGame(screen) {
+	startTime = new Date().getTime();
+	
 	game = new Game($('#canvas').get(0), settings);
 	game.nextStage();
 	
 	var stageScreen = $(templates.stage({ stage: 1 }));
-	$('body').append(stageScreen);
+	addScreen(stageScreen);
 	
 	fade(screen, stageScreen, function () {
 		screen.remove();
@@ -229,6 +241,20 @@ function playGame(screen) {
 	});
 }
 
+function initSoundToggle() {
+	$('#sound-toggle').click(function () {
+		if (Sound.muted) {
+			Sound.unmute();
+			$(this).find('img').attr('src', 'image/sound-on.png');
+			$.cookie('muted', 'false');
+		} else {
+			Sound.mute();
+			$(this).find('img').attr('src', 'image/sound-off.png');
+			$.cookie('muted', 'true');
+		}
+	});
+}
+
 /*
  * Main
  */
@@ -238,31 +264,30 @@ $(function() {
 	screens.game = $(templates.game());
 	screens.gameOver = $(templates.gameOver());
 	
-	$('#sound-toggle').click(function () {
-		if (Sound.muted) {
-			Sound.unmute();
-			$(this).find('img').attr('src', 'image/sound-on.png');
-		} else {
-			Sound.mute();
-			$(this).find('img').attr('src', 'image/sound-off.png');
-		}
-	});
-	
 	Sound.init(settings.sound);
 	
-	$('body').append(screens.splash);
+	var muted = $.cookie('muted');
+	
+	if (muted && muted == 'true') {
+		Sound.mute();
+		$('#sound-toggle').find('img').attr('src', 'image/sound-off.png');
+	}
+	
+	initSoundToggle();
+	
+	addScreen(screens.splash);
 	
 	var progressBar = $('#progress-bar').progressBar();
 	screens.splash.show();
 	
-	$('body').append(screens.introduction);
+	addScreen(screens.introduction);
 	
 	Sound.load(sounds, function () {
 		fade(screens.splash, screens.introduction, function () {
 			screens.splash.remove();
 		});
 		
-		$('body').append(screens.game);
+		addScreen(screens.game);
 			
 		$('#play-button').click(function () {
 			Sound.startMusic();
@@ -272,6 +297,10 @@ $(function() {
 		progressBar.progress(data.progress * 100);
 	});
 });
+
+function addScreen(screen) {
+	$('body').append(screen);
+}
 
 /*
  * Utility function for fading from one screen to another.
@@ -283,4 +312,37 @@ function fade(screenOut, screenIn, onComplete) {
 		screenIn.fadeIn(2000, onComplete);
 	else
 		screenIn.fadeIn(2000);
+}
+
+/*
+ * Utilitiy function for converting a time in milliseconds to a string
+ */
+function timeToString(time) {
+	time = Math.round(time / 1000);				//convert time to seconds
+	
+	var hours = Math.round(time / (60 * 60));	//calculuate hours
+	
+	time -= hours * (60 * 60);					
+	
+	var minutes = Math.round(time / 60);		//calculate minutes
+	
+	time -= minutes * 60;
+	
+	var seconds = time;
+	
+	var str = '';
+	
+	if (hours > 0) {
+		str += hours + 'h ';
+	}
+	
+	if (minutes > 0) {
+		str += minutes + 'm ';
+	}
+	
+	if (seconds > 0) {
+		str += seconds + 's';
+	}
+	
+	return str;
 }

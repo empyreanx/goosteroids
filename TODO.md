@@ -6,3 +6,5 @@ Todo:
 	- play again
 	- about
 	- credits
+	- twitter button
+	- dynamic canvas resize
