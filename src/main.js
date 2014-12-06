@@ -3,7 +3,7 @@
  */ 
 var $ = require('jquery');
 
-global.jQuery = $;
+global.jQuery = $;	//for plugins
 
 require('jquery-ui');
 require('./progressbar.js');

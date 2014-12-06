@@ -7,30 +7,15 @@ require('./utilities.js');
 var HighScores = { scores: [] };
 
 HighScores.load = function () {	
-	var cookie = $.cookie('goosteroids');
+	var cookie = $.cookie('high-scores');
 	
 	if (cookie) {
-		var scores = JSON.parse(cookie).highScores;
-		
-		console.log(scores);
-		
-		if (scores) {
-			this.scores = scores;
-		}
+		this.scores = JSON.parse(cookie);
 	}
 }
 
 HighScores.save = function () {
-	var cookie = $.cookie('goosteroids');
-	var goosteroids = {};
-	
-	if (cookie) {
-		goosteroids = JSON.parse(cookie);
-	}
-	
-	goosteroids.highScores = this.scores;
-	
-	$.cookie('goosteroids', JSON.stringify(goosteroids));
+	$.cookie('high-scores', JSON.stringify(this.scores));
 }
 
 HighScores.index = function (score) {
