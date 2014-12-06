@@ -9,6 +9,12 @@ body {
 	height:100%;
 }
 
+hr {
+	color:black;
+	background-color:black;
+	height:5px;
+}
+
 a:visited {
 	color:blue;
 }
@@ -143,9 +149,6 @@ div.controls table td {
 	font-weight:bold;
 }
 
-/*
- * Get rid of inner outline created by Firefox.
- */
 button::-moz-focus-inner {
 	border: 0;
 }
@@ -166,7 +169,7 @@ button {
 }
 
 button.big {
-	font-size:5em;
+	font-size:3em;
 	font-weight:bolder;	
 	border-width:10px;
 	padding:25px;
@@ -177,4 +180,11 @@ button.small {
 	font-weight:bolder;	
 	border-width:4px;
 	padding:15px;
+}
+
+#sound-toggle {
+	position:absolute;
+	top:30px;
+	left:30px;
+	z-index:1;
 }

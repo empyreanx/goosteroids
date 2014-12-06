@@ -153,7 +153,6 @@ var templates = {
  */
 var splashScreen = null;
 var introductionScreen = null;
-var stageScreen = null;
 var gameScreen = null;
 var gameOverScreen = null;
 var game = null;
@@ -166,7 +165,7 @@ Events.on('stageOver', function () {
 	
 	game.nextStage();
 	
-	stageScreen = $(templates.stage({ stage: game.stage }));
+	var stageScreen = $(templates.stage({ stage: game.stage }));
 	$('body').append(stageScreen);
 	
 	fade(gameScreen, stageScreen, function () {
@@ -190,6 +189,29 @@ Events.on('gameOver', function () {
 	});
 });
 
+function playGame(screen) {
+	var stageScreen = $(templates.stage({ stage: 1 }));
+	$('body').append(stageScreen);
+		
+	fade(screen, stageScreen, function () {
+		screen.remove();
+			
+		fade(stageScreen, gameScreen, function ()  {
+			stageScreen.remove();
+		});
+			
+		game.startLoop();
+	});
+}
+
+function setupPlayButton() {
+	$('#play-button').click(function () {
+		Sound.startMusic();
+		newGame();
+		playGame(introductionScreen);
+	});
+}
+
 /*
  * Main
  */
@@ -198,6 +220,16 @@ $(function() {
 	introductionScreen = $(templates.introduction());
 	gameScreen = $(templates.game());
 	gameOverScreen = $(templates.gameOver());
+	
+	$('#sound-toggle').click(function () {
+		if (Sound.muted) {
+			Sound.unmute();
+			$(this).find('img').attr('src', 'image/sound-on.png');
+		} else {
+			Sound.mute();
+			$(this).find('img').attr('src', 'image/sound-off.png');
+		}
+	});
 	
 	Sound.init(settings.sound);
 	
@@ -215,24 +247,7 @@ $(function() {
 		
 		$('body').append(gameScreen);
 			
-		$('#play-button').click(function () {
-			Sound.startMusic();
-			
-			newGame();
-			
-			stageScreen = $(templates.stage({ stage: 1 }));
-			$('body').append(stageScreen);
-			
-			fade(introductionScreen, stageScreen, function () {
-				introductionScreen.remove();
-				
-				fade(stageScreen, gameScreen, function ()  {
-					stageScreen.remove();
-				});
-				
-				game.startLoop();
-			});
-		});
+		setupPlayButton();
 	}, function (data) {
 		progressBar.progress(data.progress * 100);
 	});

@@ -104,7 +104,7 @@ Sound.mute = function () {
 Sound.unmute = function () {
 	if (Sound.enabled) {
 		Sound.muted = false;
-		createjs.Sound.setMute(true);
+		createjs.Sound.setMute(false);
 	}
 }
 
