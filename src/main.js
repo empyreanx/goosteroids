@@ -388,45 +388,53 @@ Events.on('gameOver', function () {
 	});
 });
 
+function isMobile() {
+	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+}
+
 /*
  * Main
  */
 $(function() {
-	screens.splash = $(templates.splash());
-	screens.introduction = $(templates.introduction());
-	screens.game = $(templates.game());
-	screens.gameOver = $(templates.gameOver());
-	
-	Sound.init(settings.sound);
-	
-	Images.load(splashImages, function() {
-		initMuteToggle();
+	if (!isMobile()) {
+		screens.splash = $(templates.splash());
+		screens.introduction = $(templates.introduction());
+		screens.game = $(templates.game());
+		screens.gameOver = $(templates.gameOver());
 		
-		addScreen(screens.splash);
+		Sound.init(settings.sound);
 		
-		var progressBar = $('#progress-bar').progressBar();
-		screens.splash.show();
-		
-		Images.load(images, function () {
-			Sound.load(sounds, function () {
-				addScreen(screens.introduction);
-				
-				fade(screens.splash, screens.introduction, function () {
-					screens.splash.remove();
-				});
-				
-				addScreen(screens.game);
+		Images.load(splashImages, function() {
+			initMuteToggle();
+			
+			addScreen(screens.splash);
+			
+			var progressBar = $('#progress-bar').progressBar();
+			screens.splash.show();
+			
+			Images.load(images, function () {
+				Sound.load(sounds, function () {
+					addScreen(screens.introduction);
 					
-				screens.introduction.find('button.play').click(function () {
-					playGame(screens.introduction);
+					fade(screens.splash, screens.introduction, function () {
+						screens.splash.remove();
+					});
+					
+					addScreen(screens.game);
+						
+					screens.introduction.find('button.play').click(function () {
+						playGame(screens.introduction);
+					});
+				}, function (data) {
+					progressBar.progress(50 + data.progress * 50);
 				});
 			}, function (data) {
-				progressBar.progress(50 + data.progress * 50);
+				progressBar.progress(data.progress * 50);
 			});
-		}, function (data) {
-			progressBar.progress(data.progress * 50);
 		});
-	});
+	} else {
+		alert('Sorry, mobile browsers not supported');
+	}
 });
 
 /*
