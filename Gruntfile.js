@@ -58,7 +58,7 @@ grunt.initConfig({
  
 	copy: {
 		prod: {
-			files: [ { expand: true, cwd:'web/', src: ['**'], dest: '/var/www/html/<%= pkg.name %>' } ]
+			files: [ { expand: true, cwd:'web/', src: ['**'], dest: '/var/www/<%= pkg.name %>' } ]
 		}
 	},
  });
