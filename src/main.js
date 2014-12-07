@@ -433,7 +433,7 @@ $(function() {
 			});
 		});
 	} else {
-		alert('Sorry, mobile browsers not supported');
+		alert('Sorry, mobile browsers not supported! Get on a PC and come back!');
 	}
 });
 
