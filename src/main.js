@@ -273,21 +273,25 @@ function scoresScreen() {
 	});
 }
 
-function playGame(screen) {
+function playGame(fromScreen) {
 	Sound.startMusic();
 	
 	game = new Game($('#canvas').get(0), settings);
 	game.nextStage();
 	
-	var stageScreen = $(templates.stage({ stage: 1 }));
+	var stageScreen = $(templates.stage( { stage: 1 } ));
 	addScreen(stageScreen);
 	
-	fade(screen, stageScreen, function () {
-		screen.remove();
-			
+	fade(fromScreen, stageScreen, function () {
+		fromScreen.remove();
+		
+		$(window).on('resize', resizeCanvas);
+		
 		fade(stageScreen, screens.game, function ()  {
 			stageScreen.remove();
 		});
+		
+		resizeCanvas();
 		
 		startTime = new Date().getTime();	
 		game.startLoop();
@@ -302,7 +306,7 @@ Events.on('stageOver', function () {
 	
 	game.nextStage();
 	
-	var stageScreen = $(templates.stage({ stage: game.stage }));
+	var stageScreen = $(templates.stage( { stage: game.stage } ));
 	addScreen(stageScreen);
 	
 	fade(screens.game, stageScreen, function () {
@@ -322,7 +326,10 @@ Events.on('gameOver', function () {
 	addScreen(screens.gameOver);
 	
 	fade(screens.game, screens.gameOver, function () {
+		$(window).unbind('resize');
+		
 		game.stopLoop();
+		
 		endTime = new Date().getTime();
 		
 		HighScores.load();
@@ -334,20 +341,6 @@ Events.on('gameOver', function () {
 		}
 	});
 });
-
-function initSoundToggle() {
-	$('#sound-toggle').click(function () {
-		if (Sound.muted) {
-			Sound.unmute();
-			$(this).find('img').attr('src', 'images/sound-on.png');
-			$.cookie('muted', 'false');
-		} else {
-			Sound.mute();
-			$(this).find('img').attr('src', 'images/sound-off.png');
-			$.cookie('muted', 'true');
-		}
-	});
-}
 
 /*
  * Main
@@ -364,10 +357,10 @@ $(function() {
 	
 	if (muted && muted == 'true') {
 		Sound.mute();
-		$('#sound-toggle').find('img').attr('src', 'images/sound-off.png');
+		$('#mute-toggle').find('img').attr('src', 'images/sound-off.png');
 	}
 	
-	initSoundToggle();
+	initMuteToggle();
 	
 	addScreen(screens.splash);
 	
@@ -391,6 +384,47 @@ $(function() {
 	});
 });
 
+/*
+ * Iteratively 
+ */
+function resizeCanvas() {
+	var i = 1;
+	
+	while($('#canvas').height() + 100 > $(window).height() && $('#canvas').height() > 584) {
+		$('#canvas').attr("width", $('#canvas').width() - 4*i);
+		$('#canvas').attr("height", $('#canvas').height() - 3*i);	
+		i++;
+	}
+	
+	i = 1;
+	
+	while($('#canvas').height() + 100 < $(window).height() && $('#canvas').height() < 768) {
+		$('#canvas').attr("width", $('#canvas').width() + 4*i);
+		$('#canvas').attr("height", $('#canvas').height() + 3*i);	
+		i++;
+	}
+}
+
+/*
+ * Initializes the mute sound toggle button.
+ */
+function initMuteToggle() {
+	$('#mute-toggle').click(function () {
+		if (Sound.muted) {
+			Sound.unmute();
+			$(this).find('img').attr('src', 'images/sound-on.png');
+			$.cookie('muted', 'false');
+		} else {
+			Sound.mute();
+			$(this).find('img').attr('src', 'images/sound-off.png');
+			$.cookie('muted', 'true');
+		}
+	});
+}
+
+/*
+ * Utiltity function for adding a screen to the body.
+ */
 function addScreen(screen) {
 	$('body').append(screen);
 }
