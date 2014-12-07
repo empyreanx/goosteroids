@@ -30,6 +30,9 @@ var settings = {
 	pointsPerGlob: 10,
 	textColor: 'black',
 	textFont: 'Arial',
+	minCanvasHeight: 584,
+	maxCanvasHeight: 768,
+	canvasMargin: 50,
 	
 	ship: {
 		damping: 0.5,
@@ -385,22 +388,23 @@ $(function() {
 });
 
 /*
- * Iteratively 
+ * Iteratively resize canvas to fit window. TODO: Make this function more generic, and 
+ * if possible, more efficient.
  */
 function resizeCanvas() {
 	var i = 1;
 	
-	while($('#canvas').height() + 100 > $(window).height() && $('#canvas').height() > 584) {
-		$('#canvas').attr("width", $('#canvas').width() - 4*i);
-		$('#canvas').attr("height", $('#canvas').height() - 3*i);	
+	while($('#canvas').height() + 2 * settings.canvasMargin > $(window).height() && $('#canvas').height() > settings.minCanvasHeight) {
+		$('#canvas').attr('width', $('#canvas').width() - 4*i);
+		$('#canvas').attr('height', $('#canvas').height() - 3*i);	
 		i++;
 	}
 	
 	i = 1;
 	
-	while($('#canvas').height() + 100 < $(window).height() && $('#canvas').height() < 768) {
-		$('#canvas').attr("width", $('#canvas').width() + 4*i);
-		$('#canvas').attr("height", $('#canvas').height() + 3*i);	
+	while($('#canvas').height() + 2 * settings.canvasMargin < $(window).height() && $('#canvas').height() < settings.maxCanvasHeight) {
+		$('#canvas').attr('width', $('#canvas').width() + 4*i);
+		$('#canvas').attr('height', $('#canvas').height() + 3*i);	
 		i++;
 	}
 }
