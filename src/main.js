@@ -18,6 +18,7 @@ var Game = require('./game.js');
 var HighScores = require('./highscores.js');
 var Events = require('./events.js');
 var Sound = require('./sound.js');
+var Twitter = require('./twitter.js');
 
 /*
  * Game settings
@@ -119,27 +120,27 @@ var settings = {
 var sounds = [
 	{
 		id: 'laser',
-		src: 'sound/mp3/laser.mp3'
+		src: 'sounds/mp3/laser.mp3'
 	},
 	{
 		id: 'pop',
-		src: 'sound/mp3/pop.mp3'
+		src: 'sounds/mp3/pop.mp3'
 	},
 	{
 		id: 'explosion',
-		src: 'sound/mp3/explosion.mp3'
+		src: 'sounds/mp3/explosion.mp3'
 	},	
 	{
 		id: 'music1',
-		src: 'sound/mp3/music1.mp3'
+		src: 'sounds/mp3/music1.mp3'
 	},
 	{
 		id: 'music2',
-		src: 'sound/mp3/music2.mp3'
+		src: 'sounds/mp3/music2.mp3'
 	},
 	{
 		id: 'music3',
-		src: 'sound/mp3/music3.mp3'
+		src: 'sounds/mp3/music3.mp3'
 	}
 ];
 
@@ -155,6 +156,7 @@ var templates = {
 	scores: require('../tpl/scores.hbs'),
 	dialogs: {
 		highScore: require('../tpl/dialogs/highscore.hbs'),
+		twitter: require('../tpl/dialogs/twitter.hbs'),
 		about: require('../tpl/dialogs/about.hbs'),
 		credits: require('../tpl/dialogs/credits.hbs')
 	}
@@ -172,9 +174,9 @@ var screens = {
 	scores: null
 };
 
-var game = null;	//global game object
-var startTime = 0;	//game start time
-var endTime = 0;	//game end time
+var game = null;		//global game object
+var startTime = 0;		//game start time
+var endTime = 0;		//game end time
 
 /*
  * Dialog display functions
@@ -184,7 +186,7 @@ function highScoreDialog() {
 		
 	dialog.find('button.submit').click(function () {
 		var name = dialog.find('input.name').val().trim();
-		
+	
 		if (name.length > 0) {
 			HighScores.add(name, game.stage, timeToString(endTime - startTime), game.score);
 			HighScores.save();
@@ -204,6 +206,25 @@ function highScoreDialog() {
 		$.modal.close();
 		
 		scoresScreen();
+	});
+}
+
+function twitterDialog() {
+	var dialog = $(templates.dialogs.twitter()).dialog();
+		
+	dialog.find('button.submit').click(function () {
+		var name = dialog.find('input.name').val().trim();
+		
+		if (name.length > 0) {
+			Twitter.tweet(name + ' got a score of ' + game.score + ' playing Goosteroids! Play now at', 'http://goosteroids.com', 'Goosteroids');
+			$.modal.close();
+		} else {
+			dialog.find('span.message').html('Tweeting requires a name!<br>Please enter your name below:');
+		}
+	});
+	
+	dialog.find('button.cancel').click(function () {
+		$.modal.close();		
 	});
 }
 
@@ -230,6 +251,10 @@ function scoresScreen() {
 	screens.scores = $(templates.scores( { score: game.score, scores: HighScores.scores } ));
 	
 	addScreen(screens.scores);
+	
+	screens.scores.find('img.twitter').click(function () {
+		twitterDialog();
+	});
 	
 	screens.scores.find('button.about').click(function () {
 		aboutDialog();
@@ -314,11 +339,11 @@ function initSoundToggle() {
 	$('#sound-toggle').click(function () {
 		if (Sound.muted) {
 			Sound.unmute();
-			$(this).find('img').attr('src', 'image/sound-on.png');
+			$(this).find('img').attr('src', 'images/sound-on.png');
 			$.cookie('muted', 'false');
 		} else {
 			Sound.mute();
-			$(this).find('img').attr('src', 'image/sound-off.png');
+			$(this).find('img').attr('src', 'images/sound-off.png');
 			$.cookie('muted', 'true');
 		}
 	});
@@ -339,7 +364,7 @@ $(function() {
 	
 	if (muted && muted == 'true') {
 		Sound.mute();
-		$('#sound-toggle').find('img').attr('src', 'image/sound-off.png');
+		$('#sound-toggle').find('img').attr('src', 'images/sound-off.png');
 	}
 	
 	initSoundToggle();
