@@ -15,7 +15,7 @@ HighScores.load = function () {
 }
 
 HighScores.save = function () {
-	$.cookie('high-scores', JSON.stringify(this.scores));
+	$.cookie('high-scores', JSON.stringify(this.scores), { expires: 365 } );
 }
 
 HighScores.index = function (score) {

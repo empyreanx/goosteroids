@@ -417,11 +417,11 @@ function initMuteToggle() {
 		if (Sound.muted) {
 			Sound.unmute();
 			$(this).find('img').attr('src', 'images/sound-on.png');
-			$.cookie('muted', 'false');
+			$.cookie('muted', 'false', { expires: 365 } );
 		} else {
 			Sound.mute();
 			$(this).find('img').attr('src', 'images/sound-off.png');
-			$.cookie('muted', 'true');
+			$.cookie('muted', 'true', { expires: 365 } );
 		}
 	});
 }
