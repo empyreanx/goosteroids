@@ -399,35 +399,32 @@ $(function() {
 	
 	Sound.init(settings.sound);
 	
-	var muted = $.cookie('muted');
-	
-	if (muted && muted == 'true') {
-		Sound.mute();
-		$('#mute-toggle').find('img').attr('src', 'images/sound-off.png');
-	}
-	
-	initMuteToggle();
-	
 	Images.load(splashImages, function() {
+		initMuteToggle();
+		
 		addScreen(screens.splash);
 		
 		var progressBar = $('#progress-bar').progressBar();
 		screens.splash.show();
 		
-		addScreen(screens.introduction);
-		
-		Sound.load(sounds, function () {
-			fade(screens.splash, screens.introduction, function () {
-				screens.splash.remove();
-			});
-			
-			addScreen(screens.game);
+		Images.load(images, function () {
+			Sound.load(sounds, function () {
+				addScreen(screens.introduction);
 				
-			screens.introduction.find('button.play').click(function () {
-				playGame(screens.introduction);
+				fade(screens.splash, screens.introduction, function () {
+					screens.splash.remove();
+				});
+				
+				addScreen(screens.game);
+					
+				screens.introduction.find('button.play').click(function () {
+					playGame(screens.introduction);
+				});
+			}, function (data) {
+				progressBar.progress(50 + data.progress * 50);
 			});
 		}, function (data) {
-			progressBar.progress(data.progress * 100);
+			progressBar.progress(data.progress * 50);
 		});
 	});
 });
@@ -458,6 +455,13 @@ function resizeCanvas() {
  * Initializes the mute sound toggle button.
  */
 function initMuteToggle() {
+	var muted = $.cookie('muted');
+	
+	if (muted && muted == 'true') {
+		Sound.mute();
+		$('#mute-toggle').find('img').attr('src', 'images/sound-off.png');
+	}	
+	
 	$('#mute-toggle').click(function () {
 		if (Sound.muted) {
 			Sound.unmute();
