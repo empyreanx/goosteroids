@@ -25,7 +25,7 @@ var Twitter = require('./twitter.js');
  */
 var settings = { 
 	fps: 30,					//default frames per second
-	lives: 0,
+	lives: 3,
 	globsPerStage: 13,
 	pointsPerGlob: 10,
 	textColor: 'black',
