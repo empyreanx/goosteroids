@@ -200,6 +200,7 @@ div.progress-bar div {
 }
 
 #mute-toggle {
+	display:none;
 	position:absolute;
 	top:30px;
 	left:30px;

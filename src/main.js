@@ -455,14 +455,18 @@ function resizeCanvas() {
  * Initializes the mute sound toggle button.
  */
 function initMuteToggle() {
+	var toggle = $('#mute-toggle');
+	
 	var muted = $.cookie('muted');
 	
 	if (muted && muted == 'true') {
 		Sound.mute();
-		$('#mute-toggle').find('img').attr('src', 'images/sound-off.png');
+		toggle.find('img').attr('src', 'images/sound-off.png');
 	}	
 	
-	$('#mute-toggle').click(function () {
+	toggle.show();
+	
+	toggle.click(function () {
 		if (Sound.muted) {
 			Sound.unmute();
 			$(this).find('img').attr('src', 'images/sound-on.png');
