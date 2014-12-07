@@ -34,7 +34,9 @@ Sound.load = function (manifest, onComplete, onProgress) {
 		var queue = new createjs.LoadQueue();
 		
 		queue.installPlugin(createjs.Sound);
-		queue.addEventListener("complete", onComplete);
+		
+		if (onComplete)
+			queue.addEventListener("complete", onComplete);
 		
 		if (onProgress)
 			queue.addEventListener("progress", onProgress);

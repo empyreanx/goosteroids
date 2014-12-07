@@ -16,6 +16,7 @@ require('./progressbar.js');	//custom progress bar plugin
  */
 var Game = require('./game.js');
 var HighScores = require('./highscores.js');
+var Images = require('./images.js');
 var Events = require('./events.js');
 var Sound = require('./sound.js');
 var Twitter = require('./twitter.js');
@@ -119,6 +120,48 @@ var settings = {
 		numTracks: 3
 	}
 };
+
+var splashImages = [
+	{
+		id: 'goosteroids-logo-large',
+		src: 'images/goosteroids-logo-large.png'
+	},
+	{
+		id: 'sound-on',
+		src: 'images/sound-on.png'
+	},
+	{
+		id: 'sound-off',
+		src: 'images/sound-off.png'
+	}
+];
+
+var images = [
+	{
+		id: 'goosteroids-logo-small',
+		src: 'images/goosteroids-logo-small.png'
+	},
+	{
+		id: 'github-logo-small',
+		src: 'images/github-logo-small.png'
+	},
+	{
+		id: 'twitter-logo-small',
+		src: 'images/twitter-logo-small.png'
+	},
+	{
+		id: 'up-arrow',
+		src: 'images/up-arrow.png'
+	},
+	{
+		id: 'left-arrow',
+		src: 'images/left-arrow.png'
+	},
+	{
+		id: 'right-arrow',
+		src: 'images/right-arrow.png'
+	}
+];
 
 var sounds = [
 	{
@@ -365,25 +408,27 @@ $(function() {
 	
 	initMuteToggle();
 	
-	addScreen(screens.splash);
-	
-	var progressBar = $('#progress-bar').progressBar();
-	screens.splash.show();
-	
-	addScreen(screens.introduction);
-	
-	Sound.load(sounds, function () {
-		fade(screens.splash, screens.introduction, function () {
-			screens.splash.remove();
-		});
+	Images.load(splashImages, function() {
+		addScreen(screens.splash);
 		
-		addScreen(screens.game);
+		var progressBar = $('#progress-bar').progressBar();
+		screens.splash.show();
+		
+		addScreen(screens.introduction);
+		
+		Sound.load(sounds, function () {
+			fade(screens.splash, screens.introduction, function () {
+				screens.splash.remove();
+			});
 			
-		screens.introduction.find('button.play').click(function () {
-			playGame(screens.introduction);
+			addScreen(screens.game);
+				
+			screens.introduction.find('button.play').click(function () {
+				playGame(screens.introduction);
+			});
+		}, function (data) {
+			progressBar.progress(data.progress * 100);
 		});
-	}, function (data) {
-		progressBar.progress(data.progress * 100);
 	});
 });
 
