@@ -22,7 +22,7 @@ To build a production version run:
 
 *$ grunt release*
 
-To run the game on a local test server run:
+To start a local test server (port 3000) run:
 
 *$ grunt server*
 
