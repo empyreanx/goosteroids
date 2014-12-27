@@ -445,18 +445,16 @@ function resizeCanvas() {
 	var i = 1;
 	
 	while($('#canvas').height() + 2 * settings.canvasMargin > $(window).height() && $('#canvas').height() > settings.minCanvasHeight) {
-		$('#canvas').attr('width', $('#canvas').width() - 4*i);
-		$('#canvas').attr('height', $('#canvas').height() - 3*i);	
+		game.resizeCanvas($('#canvas').width() - 4*i, $('#canvas').height() - 3*i);
 		i++;
 	}
 	
 	i = 1;
 	
 	while($('#canvas').height() + 2 * settings.canvasMargin < $(window).height() && $('#canvas').height() < settings.maxCanvasHeight) {
-		$('#canvas').attr('width', $('#canvas').width() + 4*i);
-		$('#canvas').attr('height', $('#canvas').height() + 3*i);	
+		game.resizeCanvas($('#canvas').width() + 4*i, $('#canvas').height() + 3*i);
 		i++;
-	}
+	}	
 }
 
 /*
