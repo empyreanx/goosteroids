@@ -1,5 +1,4 @@
 module.exports = function(grunt) {
-	
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		uglify: {
@@ -33,8 +32,8 @@ module.exports = function(grunt) {
 		watch: {
 			dev: {
 				files: [
-					'./src/**/*.js',
-					'./tpl/**/*.hbs'
+					'src/**/*.js',
+					'tpl/**/*.hbs'
 				],
 				tasks: [
 					'browserify:dev'
