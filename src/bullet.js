@@ -15,7 +15,7 @@ function Bullet(position, angle, lifetime, settings) {
  * Extend particle
  */
 Bullet.prototype = Object.create(Particle.prototype);
-Bullet.prototype.constructor = Particle.prototype;
+Bullet.prototype.constructor = Bullet;
 
 Bullet.prototype.intersecting = function (glob) {
 	return (this.position.distance(glob.position) < this.settings.killRadius);
